@@ -1,0 +1,55 @@
+name: Bootstrap Android project (RUN ONCE)
+
+# 一次性引导工作流：生成 android/ 原生工程供你下载提交
+on:
+  workflow_dispatch:
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate android project
+        run: npx cap add android
+
+      - name: Apply fixed build.gradle
+        run: python3 prepare_android.py
+
+      - name: Show key config
+        run: |
+          echo "===== android/app/build.gradle ====="
+          grep -nE "namespace|applicationId|versionCode|versionName|signingConfig|storeFile" android/app/build.gradle
+          echo
+          echo "===== strings.xml ====="
+          cat android/app/src/main/res/values/strings.xml
+
+      - name: Package android project
+        run: |
+          tar -czf android-project.tar.gz android
+          ls -lh android-project.tar.gz
+
+      - name: Upload android project
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-project
+          path: android-project.tar.gz
+          retention-days: 30
