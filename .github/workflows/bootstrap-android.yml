@@ -31,8 +31,30 @@ jobs:
       - name: Generate android project
         run: npx cap add android
 
-      - name: Apply fixed build.gradle
-        run: python3 prepare_android.py
+      - name: Apply fixed build.gradle and app name
+        run: |
+          python3 - <<'PY'
+          import io, json, re, os
+          cfg = {}
+          if os.path.exists('capacitor.config.json'):
+              cfg = json.load(io.open('capacitor.config.json', encoding='utf-8-sig'))
+          app_id = cfg.get('appId') or 'com.coffee.notes'
+          launcher = '咖啡小记'
+          tpl = io.open('android-build.gradle.template', encoding='utf-8').read()
+          out = tpl.replace('APP_ID_PLACEHOLDER', app_id)
+          assert 'APP_ID_PLACEHOLDER' not in out, 'appId 替换失败'
+          assert 'signingConfigs' in out, '模板缺少 signingConfigs'
+          io.open('android/app/build.gradle', 'w', encoding='utf-8', newline='').write(out)
+          print('build.gradle 已写入, applicationId =', app_id)
+          sp = 'android/app/src/main/res/values/strings.xml'
+          s = io.open(sp, encoding='utf-8').read()
+          s = re.sub(r'<string name="app_name">[^<]*</string>',
+                     '<string name="app_name">%s</string>' % launcher, s)
+          s = re.sub(r'<string name="title_activity_main">[^<]*</string>',
+                     '<string name="title_activity_main">%s</string>' % launcher, s)
+          io.open(sp, 'w', encoding='utf-8', newline='').write(s)
+          print('桌面应用名已设为', launcher)
+          PY
 
       - name: Show key config
         run: |
