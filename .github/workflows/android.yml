@@ -40,8 +40,11 @@ jobs:
           key: gradle-${{ runner.os }}-${{ hashFiles('android/**/*.gradle*', 'android/gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: gradle-${{ runner.os }}-
 
-      - name: Install dependencies
-        run: npm install
+      - name: Note if android project is missing
+        run: |
+          if [ ! -d "android" ]; then
+            echo "::notice::android/ 目录还不存在，本次跳过构建。请先运行 Bootstrap Android project 工作流。"
+          fi
 
       # android/ 尚未生成时直接跳过，不报错（引导阶段第一次 push 会遇到）
       - name: Check android project exists
