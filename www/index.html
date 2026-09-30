@@ -1,0 +1,2620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>咖啡小记</title>
+<style>
+:root{
+  --h:358;
+  --bg:hsl(358,16%,90%);
+  --card:hsl(358,22%,96%);
+  --card2:hsl(358,16%,86%);
+  --line:hsl(358,14%,80%);
+  --text:hsl(358,18%,17%);
+  --sub:hsl(358,10%,45%);
+  --accent:#B34C4E;
+  --focus:#E29A91;
+  --deep:#673D47;
+  --radius:16px;
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 6px 18px rgba(0,0,0,.05);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{
+  background:var(--bg);color:var(--text);
+  font:15px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Roboto,"Microsoft YaHei",sans-serif;
+  overscroll-behavior:none;-webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+input,textarea,select{outline:none;appearance:none;-webkit-appearance:none}
+#view{padding:6px 14px calc(96px + env(safe-area-inset-bottom));max-width:640px;margin:0 auto}
+
+.page-head{display:flex;align-items:center;gap:8px;padding:10px 2px 12px}
+.title{flex:1;min-width:0;margin:0;font-size:21px;font-weight:700;letter-spacing:.4px;color:var(--deep);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.icon-btn{width:36px;height:36px;border:0;border-radius:12px;background:transparent;color:var(--sub);
+  display:grid;place-items:center;cursor:pointer;padding:0;flex:0 0 auto}
+.icon-btn:active{background:var(--card2)}
+.icon-btn svg{width:20px;height:20px;display:block}
+.icon-btn.sm svg{width:18px;height:18px}
+.round-add{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);
+  color:var(--accent);display:grid;place-items:center;cursor:pointer;padding:0;flex:0 0 auto}
+.round-add svg{width:19px;height:19px}
+.round-add:active{transform:scale(.93)}
+.pill-toggle{border:1px solid var(--line);background:var(--card);color:var(--sub);border-radius:999px;
+  padding:5px 12px;font-size:12.5px;cursor:pointer;white-space:nowrap;flex:0 0 auto}
+.pill-toggle:active{background:var(--card2)}
+.card{background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
+.empty{padding:40px 20px;text-align:center;color:var(--sub);font-size:14px}
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(78px + env(safe-area-inset-bottom));
+  width:48px;height:48px;border-radius:50%;border:0;background:var(--accent);color:#fff;
+  display:grid;place-items:center;cursor:pointer;z-index:40;box-shadow:0 6px 20px rgba(0,0,0,.22)}
+.fab svg{width:22px;height:22px}
+.fab:active{transform:translateX(-50%) scale(.93)}
+
+.fab-back{position:fixed;right:20px;bottom:90px;z-index:160;width:52px;height:52px;border-radius:50%;
+  border:1px solid var(--line);background:var(--card);color:var(--accent);
+  display:grid;place-items:center;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.22);
+  opacity:.9;transition:opacity .15s,transform .15s}
+.fab-back:active{transform:scale(.92);opacity:1}
+.fab-back svg{width:22px;height:22px}
+body.theme-dark .fab-back{background:#1E2030;color:#B8CEE2;border-color:#33374D}
+
+.status-tabs{display:flex;gap:4px;margin-bottom:10px;background:var(--card2);padding:4px;border-radius:12px}
+.status-tabs button{flex:1;border:0;background:transparent;color:var(--sub);padding:8px 4px;border-radius:9px;
+  font-size:12.5px;cursor:pointer;font-weight:500;transition:.16s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.status-tabs button.on{background:var(--card);color:var(--accent);box-shadow:0 1px 3px rgba(0,0,0,.08);font-weight:700}
+
+.quick-status{display:flex;gap:6px}
+.qs-btn{flex:1 1 0;min-width:0;border:1px solid var(--line);background:var(--card2);color:var(--sub);
+  border-radius:999px;padding:8px 4px;font-size:12.5px;cursor:pointer;transition:.15s;
+  line-height:1.4;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.qs-btn:active{transform:scale(.96)}
+.qs-btn.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+body.theme-dark .qs-btn.on{color:#161823}
+
+.search-bar{position:relative;margin-bottom:10px}
+.search-bar input{width:100%;padding:10px 38px 10px 36px;border:1px solid var(--line);background:var(--card);
+  border-radius:12px;font-size:14px;color:var(--text)}
+.search-bar input:focus{border-color:var(--accent)}
+.search-bar .s-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:16px;height:16px;
+  color:var(--sub);pointer-events:none}
+.search-bar .s-clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:26px;height:26px;
+  border:0;background:var(--card2);color:var(--sub);border-radius:50%;display:grid;place-items:center;
+  cursor:pointer;padding:0}
+.search-bar .s-clear svg{width:12px;height:12px}
+
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:50;display:flex;background:var(--card);
+  border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);
+  box-shadow:0 -1px 12px rgba(0,0,0,.06)}
+.tab{flex:1;min-width:0;border:0;background:none;padding:7px 2px 6px;display:flex;flex-direction:column;
+  align-items:center;gap:3px;color:var(--sub);font-size:11px;cursor:pointer}
+.tab.active{color:var(--accent)}
+.tab-icon{width:23px;height:23px;display:block}
+.tab-icon svg{width:100%;height:100%;display:block}
+.tab-label{font-size:11px;line-height:1;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.swipe{position:relative;border-radius:var(--radius);overflow:hidden;margin-bottom:10px;background:var(--card)}
+.swipe-actions{position:absolute;top:0;right:0;bottom:0;display:flex}
+.swipe-btn{border:0;width:70px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;padding:0}
+.swipe-btn.edit{background:var(--accent)}
+.swipe-btn.pin{background:var(--deep)}
+.swipe-btn.del{background:#C0392B}
+.swipe-content{position:relative;background:var(--card);padding:13px 14px;border-radius:var(--radius);
+  box-shadow:var(--shadow);transition:transform .22s cubic-bezier(.22,.61,.36,1);will-change:transform}
+.swipe-content.dragging{transition:none}
+
+.card-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card-name{font-size:16px;font-weight:700;color:var(--deep);flex:1;min-width:60px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-tags{display:flex;gap:5px;flex-wrap:wrap;flex:0 0 auto}
+.tag{font-size:11px;padding:2px 8px;border-radius:999px;white-space:nowrap;line-height:1.5}
+.tag-status{background:var(--accent);color:#fff}
+.tag-focus{background:var(--focus);color:var(--deep)}
+.tag-friend{background:var(--card2);color:var(--accent)}
+.card-meta{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:8px;font-size:12.5px;color:var(--sub)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;margin-top:10px}
+.grid2 .k{font-size:11.5px;color:var(--sub);line-height:1.3}
+.grid2 .v{font-size:13.5px;color:var(--text);font-weight:500;margin-top:1px;word-break:break-all}
+.full-row{grid-column:1/-1}
+.divider{height:1px;background:var(--line);margin:12px 0}
+
+.blend-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px;
+  border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.blend-table th{background:var(--card2);color:var(--sub);font-weight:500;font-size:11.5px;
+  padding:6px 8px;text-align:left;border-bottom:1px solid var(--line)}
+.blend-table th:not(:last-child),
+.blend-table td:not(:last-child){border-right:1px solid var(--line)}
+.blend-table td{padding:6px 8px;color:var(--text);word-break:break-all;line-height:1.5}
+.blend-table tr:not(:last-child) td{border-bottom:1px solid var(--line)}
+.blend-table td.dash{color:var(--sub)}
+
+.fld{display:block;margin-bottom:12px}
+.fld-l{display:block;font-size:12px;color:var(--sub);margin-bottom:5px;padding-left:2px}
+.inp,textarea.inp,select.inp{width:100%;border:1px solid var(--line);background:var(--card);
+  border-radius:12px;padding:10px 12px;font-size:14px;color:var(--text)}
+textarea.inp{resize:vertical;min-height:70px;line-height:1.55}
+.inp:focus{border-color:var(--accent)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row2 .fld{margin-bottom:12px}
+.chk{display:flex;align-items:center;gap:9px;padding:11px 12px;border:1px solid var(--line);
+  border-radius:12px;background:var(--card);cursor:pointer;margin-bottom:12px;user-select:none}
+.chk .box{width:19px;height:19px;border-radius:6px;border:1.5px solid var(--line);display:grid;
+  place-items:center;flex:0 0 auto;transition:.16s;color:transparent}
+.chk.on .box{background:var(--accent);border-color:var(--accent);color:#fff}
+.chk .box svg{width:13px;height:13px}
+.chk .lbl{font-size:14px;color:var(--sub);transition:.16s}
+.chk.on .lbl{color:var(--accent);font-weight:600}
+.btn{border:0;border-radius:12px;padding:12px 18px;font-size:15px;font-weight:600;cursor:pointer;background:var(--accent);color:#fff}
+.btn.ghost{background:var(--card2);color:var(--text)}
+.btn.danger{background:#C0392B;color:#fff}
+.btn-row{display:flex;gap:10px;margin-top:16px}
+.btn-row .btn{flex:1}
+.inline-add{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;
+  border:1.5px dashed var(--line);border-radius:12px;background:transparent;color:var(--accent);
+  font-size:13.5px;cursor:pointer;margin-bottom:10px}
+.inline-add svg{width:16px;height:16px}
+
+.stars{display:flex;gap:2px}
+.star{border:0;background:none;padding:0 1px;font-size:19px;line-height:1;color:var(--line);cursor:pointer}
+.star.on{color:var(--focus)}
+.rating-row{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:6px 8px;margin-bottom:8px}
+.rating-row .rl{font-size:13px;color:var(--sub);white-space:nowrap}
+.rating-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px}
+.rating-grid .rating-row{margin-bottom:6px}
+.rating-grid .full{grid-column:1/-1}
+
+.fullpage{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;
+  transform:translateX(100%);transition:transform .24s cubic-bezier(.22,.61,.36,1);overflow:hidden}
+.fullpage.in{transform:translateX(0)}
+.fp-head{display:flex;align-items:center;gap:8px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;
+  background:var(--bg);border-bottom:1px solid var(--line);flex:0 0 auto}
+.fp-title{flex:1;margin:0;font-size:17px;font-weight:700;color:var(--deep);text-align:center;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fp-body{flex:1;overflow-y:auto;padding:16px 14px calc(40px + env(safe-area-inset-bottom));
+  max-width:640px;width:100%;margin:0 auto;-webkit-overflow-scrolling:touch}
+
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:200;display:flex;align-items:center;
+  justify-content:center;padding:24px;opacity:0;transition:opacity .2s}
+.mask.in{opacity:1}
+.modal{background:var(--card);border-radius:20px;padding:20px;width:100%;max-width:340px;
+  box-shadow:0 18px 50px rgba(0,0,0,.28);transform:scale(.94);transition:transform .2s}
+.mask.in .modal{transform:scale(1)}
+.modal h3{margin:0 0 14px;font-size:16.5px;color:var(--deep)}
+.modal .m-btns{display:flex;gap:10px;margin-top:6px}
+.modal .m-btns .btn{flex:1;padding:11px}
+.pick-list{display:flex;flex-direction:column;gap:10px}
+.pick-item{display:flex;align-items:center;gap:13px;padding:15px;border-radius:14px;background:var(--card2);
+  border:1px solid var(--line);cursor:pointer;text-align:left;width:100%}
+.pick-item:active{transform:scale(.98)}
+.pick-item .pi-icon{width:38px;height:38px;flex:0 0 auto;color:var(--accent);display:grid;place-items:center}
+.pick-item .pi-icon svg{width:100%;height:100%}
+.pick-item .pi-t{font-size:15px;font-weight:600;color:var(--text)}
+.pick-item .pi-s{font-size:12px;color:var(--sub);margin-top:2px}
+
+.mp-year{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:14px}
+.mp-year button{border:0;background:var(--card2);width:34px;height:34px;border-radius:10px;
+  color:var(--text);font-size:17px;cursor:pointer}
+.mp-year .y{font-size:18px;font-weight:700;color:var(--deep);min-width:70px;text-align:center}
+.mp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.mp-grid button{border:1px solid var(--line);background:var(--card2);border-radius:11px;padding:11px 0;
+  font-size:13.5px;color:var(--text);cursor:pointer}
+.mp-grid button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+
+.toast{position:fixed;left:50%;bottom:120px;transform:translateX(-50%) translateY(10px);z-index:300;
+  background:rgba(0,0,0,.82);color:#fff;padding:10px 18px;border-radius:999px;font-size:13.5px;
+  opacity:0;transition:.22s;pointer-events:none;max-width:80vw;text-align:center}
+.toast.in{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.hist-pop{position:fixed;z-index:250;background:var(--card);border:1px solid var(--line);
+  border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.16);padding:6px;max-height:200px;
+  overflow-y:auto;min-width:120px}
+.hist-pop button{display:block;width:100%;text-align:left;border:0;background:none;padding:9px 12px;
+  border-radius:9px;font-size:14px;color:var(--text);cursor:pointer}
+.hist-pop button:active{background:var(--card2)}
+
+.stat-big{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-bottom:12px}
+.stat-big .sb-row{display:flex;justify-content:space-between;gap:10px}
+.stat-big .sb-item{flex:1;min-width:0}
+.stat-big .sb-v{font-size:20px;font-weight:700;color:var(--deep);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stat-big .sb-k{font-size:11.5px;color:var(--sub);margin-top:2px}
+.stat-title{font-size:13px;color:var(--sub);margin:16px 2px 8px;font-weight:600}
+
+.stat-triple{display:flex;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+  overflow:hidden;margin-bottom:12px}
+.stat-triple .st-item{flex:1;padding:14px 4px;text-align:center;border-right:1px solid var(--line);min-width:0}
+.stat-triple .st-item:last-child{border-right:0}
+.stat-triple .st-v{font-size:17px;font-weight:700;color:var(--deep);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stat-triple .st-k{font-size:11px;color:var(--sub);margin-top:3px}
+
+.bar-line{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:12.5px}
+.bar-line .bl-name{width:78px;flex:0 0 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--sub)}
+.bar-line .bl-track{flex:1;height:16px;background:var(--card2);border-radius:8px;overflow:hidden}
+.bar-line .bl-fill{height:100%;background:var(--accent);border-radius:8px;min-width:2px}
+.bar-line .bl-val{width:52px;text-align:right;flex:0 0 auto;color:var(--text);font-variant-numeric:tabular-nums}
+
+.vchart{background:var(--card);border-radius:var(--radius);padding:14px 12px 10px;box-shadow:var(--shadow)}
+.vchart-head{font-size:12px;color:var(--sub);margin-bottom:10px;display:flex;justify-content:space-between}
+.vchart-wrap{display:flex;gap:6px;height:160px}
+.vchart-y{display:flex;flex-direction:column;justify-content:space-between;font-size:10px;color:var(--sub);
+  width:34px;text-align:right;padding-bottom:18px;flex:0 0 auto}
+.vchart-plot{position:relative;flex:1;border-bottom:1px solid var(--line);border-left:1px solid var(--line);
+  height:100%;min-width:0}
+.vchart-grid{position:absolute;left:0;right:0;border-top:1px dashed var(--line);opacity:.55}
+.vchart-bars{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;align-items:flex-end;padding:0 2px;gap:1px}
+.vchart-col{flex:1;height:100%;display:flex;align-items:flex-end;justify-content:center;min-width:0}
+.vchart-pair{display:flex;gap:1px;align-items:flex-end;height:100%;width:100%;justify-content:center}
+.vbar{width:42%;max-width:7px;border-radius:2px 2px 0 0;min-height:1px;transition:height .3s}
+.vbar.bean{background:var(--accent)}
+.vbar.shop{background:var(--focus)}
+.vchart-months{display:flex;padding:3px 2px 0 40px;font-size:10px;color:var(--sub)}
+.vchart-months span{flex:1;text-align:center;min-width:0}
+.chart-legend{display:flex;gap:16px;margin-top:10px;font-size:11.5px;color:var(--sub);justify-content:center}
+.chart-legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px}
+
+body.theme-dark .tag-status,
+body.theme-dark .tag-focus,
+body.theme-dark .tag-friend {
+  color: #161823 !important;
+  font-weight: 600;
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <main id="view"></main>
+  <nav id="tabbar" class="tabbar"></nav>
+</div>
+
+<script>
+const $  = (s,el=document)=>el.querySelector(s);
+const $$ = (s,el=document)=>[...el.querySelectorAll(s)];
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = p => genId(p);
+const todayStr = ()=> new Date().toLocaleDateString('sv-SE');
+const num = v => { const n = parseFloat(v); return isNaN(n)?0:n; };
+function toast(msg){
+  let t = $('.toast');
+  if(!t){ t = document.createElement('div'); t.className='toast'; document.body.appendChild(t); }
+  t.textContent = msg;
+  requestAnimationFrame(()=>t.classList.add('in'));
+  clearTimeout(t._tm);
+  t._tm = setTimeout(()=>t.classList.remove('in'), 1900);
+}
+
+const STAR_PATH = 'M12 2.5l2.95 6.13 6.55.91-4.75 4.62 1.12 6.59L12 17.66l-5.87 3.09 1.12-6.59L2.5 9.54l6.55-.91z';
+const ICON = {
+  bean: (fill='var(--card)') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <g transform="rotate(30 15.6 11.2)">
+      <ellipse cx="15.6" cy="11.2" rx="3.5" ry="5.5"/>
+      <path d="M15.6 5.7c-1.55 1.8-1.55 9.2 0 11"/>
+    </g>
+    <g transform="rotate(-22 8.7 13.2)">
+      <ellipse cx="8.7" cy="13.2" rx="4" ry="6.1" fill="${fill}"/>
+      <path d="M8.7 7.1c-1.7 2-1.7 10.2 0 12.2"/>
+    </g></svg>`,
+  cup: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9.3 3.8c-.85 1.05-.85 1.85 0 2.9"/>
+    <path d="M12 2.9c-.95 1.15-.95 2.05 0 3.2"/>
+    <path d="M14.7 3.8c-.85 1.05-.85 1.85 0 2.9"/>
+    <path d="M5.2 9.8h12.1v4.7a4.6 4.6 0 0 1-4.6 4.6h-2.9a4.6 4.6 0 0 1-4.6-4.6V9.8Z" fill="currentColor" stroke="none"/>
+    <path d="M17.3 11.1h1.4a2.45 2.45 0 0 1 0 4.9h-1.4"/></svg>`,
+  gear: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+  plus: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>`,
+  back: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>`,
+  check: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.4 4.4L19 7.5"/></svg>`,
+  search: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>`,
+  close: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>`,
+  starOutline: () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="${STAR_PATH}"/></svg>`,
+  starSolid: () => `<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linejoin="round"><path d="${STAR_PATH}"/></svg>`
+};
+
+const LS_KEY = 'coffee_notes_v2';
+const DEFAULT_STATE = {
+  settings:{ appName:'咖啡小记', theme:'pink' },
+  beans:[], brews:[], experiences:[], recipes:[],
+  memory:{ dripper:[], grinder:[], grind:[], method:[] }
+};
+/* ===== 字符串与格式归一化 ===== */
+const str = v => (v==null?'':String(v));
+const clamp = (v,a,b) => Math.min(b,Math.max(a,v));
+
+/* 总时长：用户习惯用「.」输入（手机键盘上 . 比 : 好按），
+   这里统一成 2:30 形式。支持 2.30 / 2：30 / 2．30 / 230 */
+function normTime(s){
+  var t = str(s).trim().replace(/[：．。]/g,'.').replace(/\s+/g,'');
+  var m = /^(\d{1,2})[.:](\d{1,2})$/.exec(t);
+  if(m) return m[1]+':'+('0'+m[2]).slice(-2);
+  if(/^\d{3}$/.test(t)) return t.slice(0,-2)+':'+t.slice(-2);
+  return t;
+}
+
+/* 粉水比：同样把「.」形式统一成一位小数 */
+function normRatio(s){
+  var t = str(s).trim().replace(/[：．。]/g,'.');
+  var n = parseFloat(t);
+  return (t!=='' && !isNaN(n)) ? n.toFixed(1) : t;
+}
+
+/* ---------- ID 生成 ----------
+   原实现只用 Date.now()+随机3位，同毫秒内连续创建有碰撞风险。
+   统一走 genId：时间戳 + 自增计数 + 随机。 */
+let _idSeq = 0;
+const genId = p => {
+  _idSeq = (_idSeq + 1) % 1296;
+  return (p ? p+'_' : '') + Date.now().toString(36)
+       + _idSeq.toString(36).padStart(2,'0')
+       + Math.random().toString(36).slice(2,6);
+};
+const BACKUP_VERSION = 1;
+const SETTINGS_DEFAULTS = { appName:'咖啡小记', theme:'pink' };
+const THEME_KEYS = ['pink','blue','green','gold','purple','dark'];
+let state = loadState();
+let ui = {
+  tab:'home', beanDense:false, recipeDense:false, detail:null,
+  beanTab:'drinking',
+  searchBean:'', searchRecord:'', searchRecipe:'',
+  beanBrewsOpen: true,
+  beanPurchasesOpen: false
+};
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return JSON.parse(JSON.stringify(DEFAULT_STATE));
+    const d = JSON.parse(raw);
+    return normalizeBackup(d).data;
+  }catch(e){
+    /* 解析失败时不再静默返回默认值 —— 否则下一次 saveState()
+       会直接用默认值覆盖掉用户的全部数据。先把原文另存一份再提示。 */
+    try{
+      const raw = localStorage.getItem(LS_KEY);
+      if(raw) localStorage.setItem(LS_KEY + '_corrupt_' + Date.now(), raw);
+    }catch(_){}
+    setTimeout(()=>toast('本地数据读取失败，已另存副本'), 800);
+    return JSON.parse(JSON.stringify(DEFAULT_STATE));
+  }
+}
+
+function saveState(){
+  try{
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      settings:state.settings, beans:state.beans, brews:state.brews,
+      experiences:state.experiences, recipes:state.recipes, memory:state.memory
+    }));
+    return true;
+  }catch(e){
+    toast('存储失败：空间可能已满');
+    return false;
+  }
+}
+
+const THEMES = {
+  pink:   { name:'粉色', h:358, accent:'#B34C4E', focus:'#E29A91', deep:'#673D47' },
+  blue:   { name:'蓝色', h:210, accent:'#326FAD', focus:'#87B8D8', deep:'#29475F' },
+  green:  { name:'绿色', h:152, accent:'#347B59', focus:'#91B889', deep:'#2D5044' },
+  gold:   { name:'金色', h:39,  accent:'#BA8B36', focus:'#E4BD65', deep:'#65513B' },
+  purple: { name:'紫色', h:267, accent:'#75529E', focus:'#AF8AC1', deep:'#513B68' },
+  dark:   { name:'深色',   h:228, accent:'#7289DA', focus:'#B8CEE2', deep:'#B8CEE2', dark:true }
+};
+function applyTheme(key){
+  const t = THEMES[key] || THEMES.pink;
+  const r = document.documentElement.style;
+  r.setProperty('--accent', t.accent);
+  r.setProperty('--focus',  t.focus);
+  r.setProperty('--deep',   t.deep);
+  if(t.dark){
+    document.body.classList.add('theme-dark');
+    r.setProperty('--bg','#161823');
+    r.setProperty('--card','#1E2030');
+    r.setProperty('--card2','#282B3E');
+    r.setProperty('--line','#33374D');
+    r.setProperty('--text','#E4E9F2');
+    r.setProperty('--sub','#98A1B8');
+  }else{
+    document.body.classList.remove('theme-dark');
+    const h = t.h;
+    r.setProperty('--bg',    `hsl(${h},16%,89%)`);
+    r.setProperty('--card',  `hsl(${h},22%,96%)`);
+    r.setProperty('--card2', `hsl(${h},16%,85%)`);
+    r.setProperty('--line',  `hsl(${h},14%,79%)`);
+    r.setProperty('--text',  `hsl(${h},18%,17%)`);
+    r.setProperty('--sub',   `hsl(${h},10%,44%)`);
+  }
+}
+
+const STATUS = { drinking:'在喝', stock:'囤豆中', done:'喝完' };
+const STATUS_KEYS = ['drinking','stock','done'];
+
+function priceInfo(bean){
+  const ps = (bean.purchases||[]).filter(p=>num(p.price)>0 && num(p.weight)>0);
+  if(!ps.length) return { latest:null, lowest:null };
+  const sorted = [...ps].sort((a,b)=> (a.date||'').localeCompare(b.date||''));
+  const latest = num(sorted[sorted.length-1].price) / num(sorted[sorted.length-1].weight);
+  const lowest = Math.min(...ps.map(p=> num(p.price)/num(p.weight)));
+  return { latest, lowest };
+}
+function fmtPrice(v){ return v==null ? '—' : v.toFixed(2)+' 元/g'; }
+/* 读取评分：优先 ratings 对象，缺失时回退到平铺字段。
+   旧备份把评分存成 bitter/sour/... 平铺字段而没有 ratings，
+   原代码读 d.ratings 会得到空对象 → 星级显示为 0 → 保存时把评分清零。 */
+function ratingsOf(b){
+  const r = b && b.ratings;
+  if(r && typeof r === 'object')
+    return { bitter:num(r.bitter), sour:num(r.sour), sweet:num(r.sweet), body:num(r.body), overall:num(r.overall) };
+  return { bitter:num(b&&b.bitter), sour:num(b&&b.sour), sweet:num(b&&b.sweet), body:num(b&&b.body), overall:num(b&&b.overall) };
+}
+
+/* ===== 备份数据规范化 =====
+   统一处理三代格式：旧版(blend / blendInfo / 平铺评分 / name)、中间版、当前版。
+   返回 { data, issues }，issues 用于告诉用户这次修复了什么。 */
+function normalizeBackup(d){
+  const issues = [];
+  if(!d || typeof d !== 'object' || Array.isArray(d)) throw new Error('不是有效的备份数据');
+
+  const inBeans = Array.isArray(d.beans) ? d.beans : [];
+  const inBrews = Array.isArray(d.brews) ? d.brews : [];
+  const inExps  = Array.isArray(d.experiences) ? d.experiences : [];
+  const inRecs  = Array.isArray(d.recipes) ? d.recipes : [];
+  const stMap   = { '在喝':'drinking', '囤豆中':'stock', '喝完':'done' };
+
+  /* ---------- 豆子 ---------- */
+  const beans = inBeans.map(b=>{
+    const raw = b || {};
+    let parts = Array.isArray(raw.blendParts) ? raw.blendParts : [];
+    if(raw.blendParts && !Array.isArray(raw.blendParts)) issues.push('blendParts 类型修正');
+    if(!parts.length && raw.blendInfo && typeof raw.blendInfo === 'string'){
+      try{ const arr = JSON.parse(raw.blendInfo); if(Array.isArray(arr)) parts = arr; }catch(e){}
+    }
+    if(!parts.length && raw.blend && raw.origin){
+      const os = str(raw.origin).split('/').map(s=>s.trim());
+      const vs = str(raw.variety).split('/').map(s=>s.trim());
+      const ps = str(raw.process).split('/').map(s=>s.trim());
+      parts = os.map((o,i)=>({ origin:o||'', variety:vs[i]||'', process:ps[i]||'' }));
+    }
+    parts = parts.map(p=>({
+      origin:  str(p && p.origin).trim(),
+      variety: str(p && p.variety).trim(),
+      process: str(p && p.process).trim()
+    }));
+
+    const isBlend = (raw.isBlend!==undefined) ? !!raw.isBlend : !!raw.blend;
+    let origin  = str(raw.origin).trim();
+    let variety = str(raw.variety).trim();
+    let process = str(raw.process).trim();
+    /* 拼配豆：用 blendParts 反推顶层字段，消除「同一语义两套存法」 */
+    if(isBlend && parts.length){
+      origin  = parts.map(p=>p.origin).join(' / ');
+      const vv = parts.map(p=>p.variety);
+      variety = vv.some(Boolean) ? vv.join(' / ') : '';
+      const pp = parts.map(p=>p.process);
+      process = pp.some(Boolean) ? pp.join(' / ') : '';
+    }
+
+    let status = raw.status;
+    if(stMap[status]) status = stMap[status];
+    if(['drinking','stock','done'].indexOf(status) < 0) status = 'drinking';
+
+    return {
+      id: raw.id || genId('bean'),
+      name: str(raw.name).trim(),
+      roaster: str(raw.roaster).trim(),
+      isBlend: isBlend,
+      origin: origin, variety: variety, process: process,
+      roastLevel: str(raw.roastLevel).trim(),
+      roastDate:  str(raw.roastDate).trim(),
+      status: status,
+      friendShare: !!raw.friendShare,
+      purchases: (Array.isArray(raw.purchases) ? raw.purchases : []).map(p=>({
+        date:   str(p && p.date).trim(),
+        price:  str(p && p.price).trim(),
+        weight: str(p && p.weight).trim()
+      })),
+      blendParts: parts,
+      flavors:        str(raw.flavors || raw.flavor).trim(),
+      officialRecipe: str(raw.officialRecipe || raw.brewAdvice).trim(),
+      note:           str(raw.note || raw.personalNotes).trim(),
+      createdAt: raw.createdAt || Date.now()
+    };
+  });
+
+  /* ---------- 冲煮记录 ---------- */
+  const brews = inBrews.map(b=>{
+    const raw = b || {};
+    if(!raw.ratings && (raw.bitter!==undefined || raw.overall!==undefined)) issues.push('评分字段补全');
+    if(raw.beanSelect!==undefined) issues.push('遗留字段清理');
+    return {
+      id: raw.id || genId('brew'),
+      beanId:   str(raw.beanId || raw.beanSelect).trim(),
+      beanName: str(raw.beanName).trim(),
+      friendShare: !!raw.friendShare,
+      date: str(raw.date).trim() || todayStr(),
+      dripper: str(raw.dripper).trim(),
+      grinder: str(raw.grinder).trim(),
+      grind:   str(raw.grind || raw.grindSize).trim(),
+      method:  str(raw.method).trim(),
+      dose:    str(raw.dose).trim(),
+      ratio:      normRatio(raw.ratio),
+      waterTemp:  str(raw.waterTemp || raw.temp).trim(),
+      totalWater: str(raw.totalWater || raw.water).trim(),
+      totalTime:  normTime(raw.totalTime),
+      ratings: ratingsOf(raw),
+      flavor:    str(raw.flavor).trim(),
+      technique: str(raw.technique).trim(),
+      notes:     str(raw.notes).trim(),
+      createdAt: raw.createdAt || Date.now()
+    };
+  });
+
+  /* ---------- 门店体验 ---------- */
+  const experiences = inExps.map(e=>{
+    const raw = e || {};
+    return {
+      id: raw.id || genId('exp'),
+      date: str(raw.date).trim() || todayStr(),
+      shop: str(raw.shop).trim(),
+      drink: str(raw.drink).trim(),
+      origin: str(raw.origin).trim(),
+      roastLevel: str(raw.roastLevel).trim(),
+      other: str(raw.other).trim(),
+      price: str(raw.price).trim(),
+      rating: num(raw.rating),
+      experience: str(raw.experience).trim(),
+      createdAt: raw.createdAt || Date.now()
+    };
+  });
+
+  /* ---------- 冲煮方案 ---------- */
+  const recipes = inRecs.map(r=>{
+    const raw = r || {};
+    if(raw.name!==undefined && raw.title===undefined) issues.push('方案字段迁移');
+    return {
+      id: raw.id || genId('recipe'),
+      title: str(raw.title || raw.name).trim(),
+      dripper: str(raw.dripper).trim(),
+      grinder: str(raw.grinder).trim(),
+      grind:   str(raw.grind).trim(),
+      method:  str(raw.method).trim(),
+      dose:    str(raw.dose).trim(),
+      ratio:      normRatio(raw.ratio),
+      waterTemp:  str(raw.waterTemp || raw.temp).trim(),
+      totalWater: str(raw.totalWater || raw.water).trim(),
+      totalTime:  normTime(raw.totalTime),
+      rating:  num(raw.rating),
+      flavor:  str(raw.flavor).trim(),
+      technique: str(raw.technique || raw.stages).trim(),
+      notes:     str(raw.notes || raw.review).trim(),
+      pinned: !!raw.pinned,
+      createdAt: raw.createdAt || Date.now()
+    };
+  });
+
+  /* ---------- 记忆词条：合并 + 去重 + 限长 ---------- */
+  const mem = (d.memory && typeof d.memory === 'object') ? d.memory : {};
+  const memory = {
+    dripper: Array.isArray(mem.dripper) ? mem.dripper.slice() : [],
+    grinder: Array.isArray(mem.grinder) ? mem.grinder.slice() : [],
+    grind:   Array.isArray(mem.grind)   ? mem.grind.slice()   : [],
+    method:  Array.isArray(mem.method)  ? mem.method.slice()  : []
+  };
+  brews.forEach(x=>{
+    if(x.dripper) memory.dripper.push(x.dripper);
+    if(x.grinder) memory.grinder.push(x.grinder);
+    if(x.grind)   memory.grind.push(x.grind);
+    if(x.method)  memory.method.push(x.method);
+  });
+  ['dripper','grinder','grind','method'].forEach(k=>{
+    const seen = new Set();
+    memory[k] = memory[k].map(v=>str(v).trim()).filter(v=>{
+      if(!v || seen.has(v)) return false;
+      seen.add(v); return true;
+    }).slice(0,24);
+  });
+
+  /* ---------- 设置 ---------- */
+  const settings = Object.assign({}, SETTINGS_DEFAULTS,
+                                 (d.settings && typeof d.settings === 'object') ? d.settings : {});
+  settings.appName = str(settings.appName).trim() || SETTINGS_DEFAULTS.appName;
+  if(THEME_KEYS.indexOf(settings.theme) < 0) settings.theme = SETTINGS_DEFAULTS.theme;
+
+  return {
+    data: { settings: settings, beans: beans, brews: brews,
+            experiences: experiences, recipes: recipes, memory: memory },
+    issues: [...new Set(issues)]
+  };
+}
+
+/* 导出载荷：导出前先规范化，保证导出的永远是干净数据 */
+function exportPayload(){
+  return JSON.stringify({
+    schemaVersion: BACKUP_VERSION,
+    exportedAt: todayStr(),
+    counts: {
+      beans: state.beans.length, brews: state.brews.length,
+      experiences: state.experiences.length, recipes: state.recipes.length
+    },
+    settings: state.settings, beans: state.beans, brews: state.brews,
+    experiences: state.experiences, recipes: state.recipes, memory: state.memory
+  });
+}
+
+/* 导入：校验 + 规范化 + 整体替换，返回 {ok,msg} */
+function applyBackup(txt){
+  if(!txt) return { ok:false, msg:'请先粘贴备份数据' };
+  let d;
+  try{ d = JSON.parse(txt); }
+  catch(e){ return { ok:false, msg:'不是有效的 JSON，可能复制时被截断' }; }
+
+  const declared = (d && d.counts) ? d.counts : null;
+  const actual = {
+    beans: (d && Array.isArray(d.beans)) ? d.beans.length : 0,
+    brews: (d && Array.isArray(d.brews)) ? d.brews.length : 0
+  };
+  const warn = [];
+  if(declared){
+    if(declared.beans != null && declared.beans !== actual.beans)
+      warn.push('豆子数 ' + declared.beans + '→' + actual.beans);
+    if(declared.brews != null && declared.brews !== actual.brews)
+      warn.push('冲煮数 ' + declared.brews + '→' + actual.brews);
+    if(d.schemaVersion != null && d.schemaVersion > BACKUP_VERSION)
+      warn.push('备份版本 v' + d.schemaVersion + ' 高于本应用 v' + BACKUP_VERSION);
+  }
+
+  let res;
+  try{ res = normalizeBackup(d); }
+  catch(e){ return { ok:false, msg:'备份内容有问题：' + e.message }; }
+
+  if(!res.data.beans.length && !res.data.brews.length && !res.data.recipes.length
+     && !res.data.experiences.length){
+    return { ok:false, msg:'备份里没有可导入的记录，已取消（现有数据未改动）' };
+  }
+
+  state.settings    = res.data.settings;
+  state.beans       = res.data.beans;
+  state.brews       = res.data.brews;
+  state.experiences = res.data.experiences;
+  state.recipes     = res.data.recipes;
+  state.memory      = res.data.memory;
+
+  if(!saveState()) return { ok:false, msg:'写入本地存储失败，请检查剩余空间' };
+  applyTheme(state.settings.theme);
+
+  const parts = ['导入成功：豆子 ' + state.beans.length + '、冲煮 ' + state.brews.length];
+  if(res.issues.length) parts.push('已修复 ' + res.issues.join('/'));
+  if(warn.length) parts.push('注意 ' + warn.join('，'));
+  return { ok:true, msg:parts.join('；') };
+}
+
+const ORIGIN_RULES = [
+  [/埃塞|耶加|西达摩|西达莫|古吉|哈拉尔|利姆|吉玛|瑰夏村|班其玛吉|莎拉耶|buku|abel/i,'埃塞俄比亚'],
+  [/肯尼亚|涅里|基安布|麒麟雅加/i,'肯尼亚'],
+  [/哥伦比亚|慧兰|乌伊拉|娜玲珑|蕙兰/i,'哥伦比亚'],
+  [/巴西|喜拉多|塞拉多/i,'巴西'],
+  [/危地马拉|安提瓜|薇薇特南果/i,'危地马拉'],
+  [/哥斯达黎加|塔拉珠|中央山谷/i,'哥斯达黎加'],
+  [/巴拿马|翡翠庄园|波奎特/i,'巴拿马'],
+  [/卢旺达|鲁特西罗/i,'卢旺达'],
+  [/布隆迪/i,'布隆迪'],
+  [/印尼|印度尼西亚|苏门答腊|曼特宁|爪哇|苏拉威西|托拉贾|巴厘/i,'印度尼西亚'],
+  [/洪都拉斯/i,'洪都拉斯'],
+  [/萨尔瓦多/i,'萨尔瓦多'],
+  [/秘鲁/i,'秘鲁'],
+  [/墨西哥/i,'墨西哥'],
+  [/越南/i,'越南'],
+  [/云南|保山|普洱|孟连/i,'中国'],
+  [/坦桑尼亚|乞力马扎罗|吉力马扎罗/i,'坦桑尼亚'],
+  [/乌干达/i,'乌干达'],
+  [/也门|摩卡马塔里/i,'也门'],
+  [/厄瓜多尔/i,'厄瓜多尔'],
+  [/玻利维亚/i,'玻利维亚'],
+  [/尼加拉瓜/i,'尼加拉瓜'],
+  [/牙买加|蓝山/i,'牙买加'],
+  [/泰国/i,'泰国'],
+  [/巴布亚新几内亚|PNG/i,'巴布亚新几内亚'],
+  [/印度(?!尼西亚)/i,'印度']
+];
+function toCountry(s){
+  if(!s) return null;
+  for(const [re,name] of ORIGIN_RULES) if(re.test(s)) return name;
+  return null;
+}
+
+function render(){
+  applyTheme(state.settings.theme);
+  renderTabbar();
+  document.querySelectorAll('body > .fab-back[data-render-back]').forEach(el=>el.remove());
+  const v = $('#view');
+  if(ui.detail){
+    v.innerHTML = renderDetail();
+    const back = document.createElement('button');
+    back.className = 'fab-back';
+    back.setAttribute('data-render-back', '1');
+    back.innerHTML = ICON.back();
+    back.onclick = ()=>{ ui.detail = null; render(); window.scrollTo(0,0); };
+    document.body.appendChild(back);
+  }else{
+    switch(ui.tab){
+      case 'home':    v.innerHTML = viewHome();    break;
+      case 'beans':   v.innerHTML = viewBeans();   break;
+      case 'record':  v.innerHTML = viewRecord();  break;
+      case 'recipes': v.innerHTML = viewRecipes(); break;
+      case 'stats':   v.innerHTML = viewStats();   break;
+    }
+  }
+  afterRender();
+}
+function renderTabbar(){
+  const items = [
+    {k:'home',    label:'首页'},
+    {k:'beans',   label:'豆仓'},
+    {k:'record',  label:'记一笔'},
+    {k:'recipes', label:'冲煮方案'},
+    {k:'stats',   label:'统计'}
+  ];
+  $('#tabbar').innerHTML = items.map(it=>{
+    const on = ui.tab===it.k && !ui.detail;
+    return `<button class="tab ${on?'active':''}" data-act="tab" data-tab="${it.k}">
+      <span class="tab-icon">${on?ICON.cup():ICON.bean()}</span>
+      <span class="tab-label">${it.label}</span>
+    </button>`;
+  }).join('');
+}
+function afterRender(){
+  $$('.swipe').forEach(attachSwipe);
+}
+
+function viewHome(){
+  const name = state.settings.appName || '咖啡小记';
+  const drinking = state.beans.filter(b=>b.status==='drinking');
+  const m = todayStr().slice(0,7);
+  const monthBrews = state.brews.filter(b=>(b.date||'').startsWith(m));
+  const monthBeans = state.beans.flatMap(b=>b.purchases||[]).filter(p=>(p.date||'').startsWith(m));
+  const beanSpend = monthBeans.reduce((s,p)=>s+num(p.price),0);
+  const shopSpend = state.experiences.filter(e=>(e.date||'').startsWith(m)).reduce((s,e)=>s+num(e.price),0);
+  const recent = [...state.brews.map(b=>({t:'brew',d:b})), ...state.experiences.map(e=>({t:'exp',d:e}))]
+    .sort((a,b)=>(b.d.date||'').localeCompare(a.d.date||'')).slice(0,4);
+  return `
+  <div class="page-head">
+    <h1 class="title">${esc(name)}</h1>
+    <button class="icon-btn sm" data-act="settings">${ICON.gear()}</button>
+  </div>
+  <div class="stat-big">
+    <div class="sb-row">
+      <div class="sb-item"><div class="sb-v">${drinking.length}</div><div class="sb-k">在喝的豆子</div></div>
+      <div class="sb-item"><div class="sb-v">${monthBrews.length}</div><div class="sb-k">本月冲煮</div></div>
+      <div class="sb-item"><div class="sb-v">¥${(beanSpend+shopSpend).toFixed(0)}</div><div class="sb-k">本月花费</div></div>
+    </div>
+  </div>
+  <div class="stat-title">最近记录</div>
+  ${ recent.length ? recent.map(r=>{
+      if(r.t==='brew'){
+        const b = r.d;
+        return `<div class="card" style="margin-bottom:10px" data-act="open-brew" data-id="${b.id}">
+          <div class="card-top">
+            <div class="card-name">${esc(b.beanName||'手冲')}</div>
+            <span class="tag tag-focus">冲煮</span>
+          </div>
+          <div class="card-meta">
+            <span>${esc(b.date||'')}</span>
+            ${b.flavor?`<span>${esc(b.flavor)}</span>`:''}
+            ${b.notes?`<span>${esc(String(b.notes).slice(0,20))}</span>`:''}
+          </div>
+        </div>`;
+      }else{
+        const e = r.d;
+        return `<div class="card" style="margin-bottom:10px" data-act="open-exp" data-id="${e.id}">
+          <div class="card-top">
+            <div class="card-name">${esc(e.shop||e.drink||'门店体验')}</div>
+            <span class="tag tag-status">体验</span>
+          </div>
+          <div class="card-meta">
+            <span>${esc(e.date||'')}</span>
+            ${e.drink?`<span>${esc(e.drink)}</span>`:''}
+            ${e.price?`<span>¥${esc(String(e.price))}</span>`:''}
+          </div>
+        </div>`;
+      }
+    }).join('') : `<div class="empty">还没有记录</div>` }
+  `;
+}
+
+function viewBeans(){
+  const counts = {
+    drinking: state.beans.filter(b=>b.status==='drinking').length,
+    stock:    state.beans.filter(b=>b.status==='stock').length,
+    done:     state.beans.filter(b=>b.status==='done').length
+  };
+  return `
+  <div class="page-head">
+    <h1 class="title">豆仓</h1>
+    <button class="pill-toggle" data-act="toggle-bean-dense">${ui.beanDense?'详细':'简略'}</button>
+    <button class="round-add" data-act="add-bean">${ICON.plus()}</button>
+  </div>
+
+  <div class="status-tabs">
+    <button class="${ui.beanTab==='drinking'?'on':''}" data-act="set-bean-tab" data-tab="drinking">在喝 ${counts.drinking}</button>
+    <button class="${ui.beanTab==='stock'?'on':''}" data-act="set-bean-tab" data-tab="stock">囤豆中 ${counts.stock}</button>
+    <button class="${ui.beanTab==='done'?'on':''}" data-act="set-bean-tab" data-tab="done">喝完 ${counts.done}</button>
+  </div>
+
+  <div class="search-bar">
+    <span class="s-icon">${ICON.search()}</span>
+    <input id="beanSearch" type="text" placeholder="搜索豆名 / 烘焙商 / 产区…"
+      value="${esc(ui.searchBean)}" oninput="window.__searchBean(this.value)">
+    ${ui.searchBean?`<button class="s-clear" onclick="window.__clearSearch('bean')">${ICON.close()}</button>`:''}
+  </div>
+
+  <div id="beanList">${renderBeanList()}</div>
+  <button class="fab" data-act="add-bean">${ICON.plus()}</button>
+  `;
+}
+
+function renderBeanList(){
+  let list = state.beans.filter(b=>b.status===ui.beanTab);
+  const q = (ui.searchBean||'').trim().toLowerCase();
+  if(q){
+    list = list.filter(b=>{
+      const hay = [
+        b.name, b.roaster, b.origin, b.variety, b.process, b.flavors,
+        ...(b.blendParts||[]).flatMap(x=>[x.origin,x.variety,x.process])
+      ].filter(Boolean).join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+  }
+  list.sort((a,b)=> (b.createdAt||0)-(a.createdAt||0));
+  return list.length ? list.map(beanCard).join('')
+    : `<div class="empty">${q?'没有匹配的豆子':'这个分类还没有豆子'}</div>`;
+}
+
+function blendTableHTML(parts){
+  const rows = (parts||[]).filter(x=>x.origin||x.variety||x.process);
+  if(!rows.length) return '';
+  return `<table class="blend-table">
+    <thead><tr><th>产区</th><th>豆种</th><th>处理法</th></tr></thead>
+    <tbody>
+      ${rows.map(x=>`<tr>
+        <td class="${x.origin?'':'dash'}">${esc(x.origin||'-')}</td>
+        <td class="${x.variety?'':'dash'}">${esc(x.variety||'-')}</td>
+        <td class="${x.process?'':'dash'}">${esc(x.process||'-')}</td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+}
+
+function beanCard(b){
+  const p = priceInfo(b);
+  const dense = ui.beanDense;
+  let body = '';
+  if(dense){
+    if(b.isBlend){
+      body = `<div class="grid2">
+        <div><div class="k">烘焙商</div><div class="v">${esc(b.roaster||'—')}</div></div>
+        <div><div class="k">烘焙度</div><div class="v">${esc(b.roastLevel||'—')}</div></div>
+        <div><div class="k">烘焙日期</div><div class="v">${esc(b.roastDate||'—')}</div></div>
+        <div><div class="k">最新克价</div><div class="v">${fmtPrice(p.latest)}</div></div>
+      </div>`;
+      if((b.blendParts||[]).length){
+        body += `<div class="divider"></div>
+          <div style="font-size:11.5px;color:var(--sub);margin-bottom:4px">拼配组成</div>
+          ${blendTableHTML(b.blendParts)}`;
+      }
+    }else{
+      body = `<div class="grid2">
+        <div class="full-row"><div class="k">烘焙商</div><div class="v">${esc(b.roaster||'—')}</div></div>
+        <div><div class="k">烘焙度</div><div class="v">${esc(b.roastLevel||'—')}</div></div>
+        <div><div class="k">处理法</div><div class="v">${esc(b.process||'—')}</div></div>
+        <div><div class="k">产区</div><div class="v">${esc(b.origin||'—')}</div></div>
+        <div><div class="k">豆种</div><div class="v">${esc(b.variety||'—')}</div></div>
+        <div><div class="k">烘焙日期</div><div class="v">${esc(b.roastDate||'—')}</div></div>
+        <div><div class="k">最新克价</div><div class="v">${fmtPrice(p.latest)}</div></div>
+      </div>`;
+    }
+  }
+  return `
+  <div class="swipe" data-swipe-id="${b.id}" data-swipe-type="bean">
+    <div class="swipe-actions">
+      <button class="swipe-btn edit" data-act="edit-bean" data-id="${b.id}">修改</button>
+      <button class="swipe-btn del"  data-act="del-bean"  data-id="${b.id}">删除</button>
+    </div>
+    <div class="swipe-content" data-act="open-bean" data-id="${b.id}">
+      <div class="card-top">
+        <div class="card-name">${esc(b.name||'未命名')}</div>
+        <div class="card-tags">
+          <span class="tag tag-focus">${b.isBlend?'拼配':'单品'}</span>
+          ${b.friendShare?'<span class="tag tag-friend">朋友分享</span>':''}
+        </div>
+      </div>
+      ${body}
+    </div>
+  </div>`;
+}
+
+window.__searchBean = function(val){
+  ui.searchBean = val;
+  const el = $('#beanList');
+  if(el) el.innerHTML = renderBeanList();
+  $$('#beanList .swipe').forEach(attachSwipe);
+  const wrap = $('.search-bar');
+  if(wrap){
+    const existing = $('.s-clear', wrap);
+    if(val && !existing){
+      const btn = document.createElement('button');
+      btn.className = 's-clear';
+      btn.innerHTML = ICON.close();
+      btn.onclick = ()=> window.__clearSearch('bean');
+      wrap.appendChild(btn);
+    }else if(!val && existing){
+      existing.remove();
+    }
+  }
+};
+window.__clearSearch = function(which){
+  if(which==='bean'){
+    ui.searchBean = '';
+    const inp = $('#beanSearch'); if(inp) inp.value = '';
+    window.__searchBean('');
+  }else if(which==='record'){
+    ui.searchRecord = '';
+    const inp = $('#recordSearch'); if(inp) inp.value = '';
+    window.__searchRecord('');
+  }else if(which==='recipe'){
+    ui.searchRecipe = '';
+    const inp = $('#recipeSearch'); if(inp) inp.value = '';
+    window.__searchRecipe('');
+  }
+};
+
+function renderBeanDetail(b){
+  const p = priceInfo(b);
+  const purchases = [...(b.purchases||[])].sort((a,b2)=>(b2.date||'').localeCompare(a.date||''));
+  const latestPurchase = purchases[0] || {};
+  const brews = state.brews.filter(x=>x.beanId===b.id)
+    .sort((a,c)=>(c.date||'').localeCompare(a.date||''));
+  const brewOpen = ui.beanBrewsOpen !== false;
+  const purchasesOpen = ui.beanPurchasesOpen === true;
+  let base = '';
+  if(b.isBlend){
+    base = `<div class="grid2">
+      <div><div class="k">烘焙商</div><div class="v">${esc(b.roaster||'—')}</div></div>
+      <div><div class="k">烘焙度</div><div class="v">${esc(b.roastLevel||'—')}</div></div>
+      <div><div class="k">烘焙日期</div><div class="v">${esc(b.roastDate||'—')}</div></div>
+      <div><div class="k">购买日期</div><div class="v">${esc(latestPurchase.date||'—')}</div></div>
+      <div><div class="k">最新克价</div><div class="v">${fmtPrice(p.latest)}</div></div>
+      <div><div class="k">最低克价</div><div class="v">${fmtPrice(p.lowest)}</div></div>
+    </div>`;
+    if((b.blendParts||[]).length){
+      base += `<div class="divider"></div>
+        <div style="font-size:12px;color:var(--sub);margin-bottom:6px">拼配组成</div>
+        ${blendTableHTML(b.blendParts)}`;
+    }
+  }else{
+    base = `<div class="grid2">
+      <div class="full-row"><div class="k">烘焙商</div><div class="v">${esc(b.roaster||'—')}</div></div>
+      <div><div class="k">烘焙度</div><div class="v">${esc(b.roastLevel||'—')}</div></div>
+      <div><div class="k">处理法</div><div class="v">${esc(b.process||'—')}</div></div>
+      <div><div class="k">产区</div><div class="v">${esc(b.origin||'—')}</div></div>
+      <div><div class="k">豆种</div><div class="v">${esc(b.variety||'—')}</div></div>
+      <div><div class="k">烘焙日期</div><div class="v">${esc(b.roastDate||'—')}</div></div>
+      <div><div class="k">购买日期</div><div class="v">${esc(latestPurchase.date||'—')}</div></div>
+      <div><div class="k">最新克价</div><div class="v">${fmtPrice(p.latest)}</div></div>
+      <div><div class="k">最低克价</div><div class="v">${fmtPrice(p.lowest)}</div></div>
+    </div>`;
+  }
+
+  let purchaseBody = '';
+  if(purchases.length){
+    const list = purchasesOpen ? purchases : purchases.slice(0,1);
+    purchaseBody = `<div class="divider"></div>
+      <div class="stat-title" style="display:flex;align-items:center;justify-content:space-between;margin:0 0 8px">
+        <span>购买记录 (${purchases.length})</span>
+        ${purchases.length > 1 ? `<button class="pill-toggle" data-act="toggle-bean-purchases">${purchasesOpen?'隐藏':'展开'}</button>` : ''}
+      </div>
+      ${list.map(x=>`<div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--line)">
+        <span>${esc(x.date||'—')}</span>
+        <span style="color:var(--sub)">¥${esc(String(x.price||0))} / ${esc(String(x.weight||0))}g</span>
+      </div>`).join('')}`;
+  }
+
+  return `
+  <div class="page-head">
+    <span style="width:36px;flex:0 0 36px"></span>
+    <h1 class="title" style="font-size:18px;text-align:center">${esc(b.name||'未命名')}</h1>
+    <span style="width:36px;flex:0 0 36px"></span>
+  </div>
+  <div class="card">
+    <div class="card-top" style="margin-bottom:10px">
+      <div class="card-name" style="font-size:15px">基础信息</div>
+      <div class="card-tags">
+        <span class="tag tag-focus">${b.isBlend?'拼配':'单品'}</span>
+      </div>
+    </div>
+    ${base}
+    ${purchaseBody}
+  </div>
+  ${ b.flavors || b.officialRecipe ? `
+  <div class="card" style="margin-top:12px">
+    ${b.flavors?`<div class="k" style="font-size:11.5px;color:var(--sub)">参考风味</div>
+      <div style="font-size:13.5px;margin:3px 0 12px">${esc(b.flavors)}</div>`:''}
+    ${b.officialRecipe?`<div class="k" style="font-size:11.5px;color:var(--sub)">官方冲煮建议</div>
+      <div style="font-size:13.5px;margin-top:3px;white-space:pre-wrap">${esc(b.officialRecipe)}</div>`:''}
+  </div>`:'' }
+  ${ b.note ? `<div class="card" style="margin-top:12px">
+    <div class="k" style="font-size:11.5px;color:var(--sub)">笔记</div>
+    <div style="font-size:13.5px;margin-top:3px;white-space:pre-wrap">${esc(b.note)}</div>
+  </div>`:'' }
+  <div class="stat-title" style="display:flex;align-items:center;justify-content:space-between">
+    <span>冲煮记录 (${brews.length})</span>
+    <button class="pill-toggle" data-act="toggle-bean-brews">${brewOpen?'隐藏':'展开'}</button>
+  </div>
+  ${ brewOpen ? (brews.length ? brews.map(x=>`
+    <div class="card" style="margin-bottom:9px" data-act="open-brew" data-id="${x.id}">
+      <div style="display:flex;justify-content:space-between;gap:10px">
+        <div style="font-size:13.5px;font-weight:600">${esc(x.date||'')}</div>
+        <div style="font-size:12.5px;color:var(--sub);text-align:right;flex:1;overflow:hidden;
+          text-overflow:ellipsis;white-space:nowrap">
+          ${esc([x.flavor, x.notes].filter(Boolean).join(' · ')||'—')}
+        </div>
+      </div>
+    </div>`).join('') : `<div class="empty">还没有冲煮记录</div>`) : '' }
+  <div class="btn-row" style="margin-top:20px">
+    <button class="btn" data-act="edit-bean" data-id="${b.id}">修改豆子</button>
+  </div>
+  `;
+}
+
+function openBeanForm(id){
+  const b = id ? state.beans.find(x=>x.id===id) : null;
+  const isEdit = !!b;
+  const d = b || {
+    name:'', roaster:'', isBlend:false, origin:'', variety:'', process:'', roastLevel:'',
+    roastDate:'', status:'drinking', friendShare:false, purchases:[], blendParts:[],
+    flavors:'', officialRecipe:'', note:''
+  };
+  const page = openFull(isEdit?'修改豆子':'新建豆子', `
+    <label class="fld"><span class="fld-l">品名</span>
+      <input class="inp" data-k="name" value="${esc(d.name)}" placeholder="例如：耶加雪菲 日晒"></label>
+    <label class="fld"><span class="fld-l">烘焙商</span>
+      <input class="inp" data-k="roaster" value="${esc(d.roaster)}" placeholder="烘焙商名称"></label>
+    <div class="chk ${d.isBlend?'on':''}" data-act="toggle-blend">
+      <span class="box">${ICON.check()}</span>
+      <span class="lbl">拼配豆${d.isBlend?' ✓':''}</span>
+    </div>
+    <div id="singleBox" style="${d.isBlend?'display:none':''}">
+      <div class="row2">
+        <label class="fld"><span class="fld-l">产地 / 产区</span>
+          <input class="inp" data-k="origin" value="${esc(d.origin)}" placeholder="埃塞俄比亚 耶加雪菲"></label>
+        <label class="fld"><span class="fld-l">豆种</span>
+          <input class="inp" data-k="variety" value="${esc(d.variety)}" placeholder="原生种"></label>
+      </div>
+      <label class="fld"><span class="fld-l">处理法</span>
+        <input class="inp" data-k="process" value="${esc(d.process)}" placeholder="水洗 / 日晒 / 蜜处理"></label>
+    </div>
+    <div id="blendBox" style="${d.isBlend?'':'display:none'}">
+      <div style="font-size:12px;color:var(--sub);margin-bottom:8px">拼配组成</div>
+      <div id="blendParts"></div>
+      <button class="inline-add" id="addBlendBtn">${ICON.plus()} 添加一种豆</button>
+    </div>
+    <div class="row2">
+      <label class="fld"><span class="fld-l">烘焙度</span>
+        <input class="inp" data-k="roastLevel" value="${esc(d.roastLevel)}" placeholder="中浅烘"></label>
+      <label class="fld"><span class="fld-l">烘焙日期</span>
+        <input class="inp" type="date" data-k="roastDate" value="${esc(d.roastDate)}"></label>
+    </div>
+    <div class="fld">
+      <span class="fld-l">状态</span>
+      <div class="quick-status" id="formStatusRow">
+        <button type="button" class="qs-btn ${d.status==='drinking'?'on':''}" data-status="drinking">在喝</button>
+        <button type="button" class="qs-btn ${d.status==='stock'?'on':''}" data-status="stock">囤豆中</button>
+        <button type="button" class="qs-btn ${d.status==='done'?'on':''}" data-status="done">喝完</button>
+        <button type="button" class="qs-btn ${d.friendShare?'on':''}" data-friend="1">朋友分享</button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div style="font-size:12px;color:var(--sub);margin-bottom:8px">购买记录</div>
+    <div id="purchaseList"></div>
+    <button class="inline-add" id="addPurchaseBtn">${ICON.plus()} 添加购买记录</button>
+    <div class="divider"></div>
+    <label class="fld"><span class="fld-l">参考风味</span>
+      <textarea class="inp" data-k="flavors" placeholder="柑橘、花香、蜂蜜…">${esc(d.flavors)}</textarea></label>
+    <label class="fld"><span class="fld-l">官方冲煮建议</span>
+      <textarea class="inp" data-k="officialRecipe" placeholder="粉量、水温、粉水比…">${esc(d.officialRecipe)}</textarea></label>
+    <label class="fld"><span class="fld-l">笔记</span>
+      <textarea class="inp" data-k="note">${esc(d.note)}</textarea></label>
+    <div class="btn-row">
+      <button class="btn ghost" data-act="close-full">取消</button>
+      <button class="btn" data-act="save-bean" data-id="${id||''}">保存</button>
+    </div>
+  `);
+
+  $$('#formStatusRow .qs-btn', page).forEach(btn=>{
+    btn.onclick = ()=>{
+      if(btn.hasAttribute('data-friend')){
+        btn.classList.toggle('on');
+      }else{
+        $$('#formStatusRow .qs-btn[data-status]', page).forEach(b=>b.classList.remove('on'));
+        btn.classList.add('on');
+      }
+    };
+  });
+
+  let blendParts = (d.blendParts||[]).map(x=>({...x}));
+  let purchases  = (d.purchases||[]).map(x=>({...x}));
+
+  function renderBlendParts(){
+    const box = $('#blendParts', page);
+    if(!box) return;
+    box.innerHTML = blendParts.map((p,i)=>`
+      <div class="card" style="margin-bottom:9px;padding:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-size:12px;color:var(--sub)">豆 ${i+1}</span>
+          <button type="button" class="icon-btn" style="width:28px;height:28px" data-rm-blend="${i}">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg>
+          </button>
+        </div>
+        <div class="row2">
+          <label class="fld" style="margin-bottom:8px"><span class="fld-l">产区</span>
+            <input class="inp" data-bp="${i}" data-f="origin" value="${esc(p.origin||'')}"></label>
+          <label class="fld" style="margin-bottom:8px"><span class="fld-l">豆种</span>
+            <input class="inp" data-bp="${i}" data-f="variety" value="${esc(p.variety||'')}"></label>
+        </div>
+        <label class="fld" style="margin-bottom:0"><span class="fld-l">处理法</span>
+          <input class="inp" data-bp="${i}" data-f="process" value="${esc(p.process||'')}"></label>
+      </div>`).join('');
+    $$('[data-bp]', box).forEach(inp=>{
+      inp.oninput = ()=>{ blendParts[+inp.dataset.bp][inp.dataset.f] = inp.value; };
+    });
+    $$('[data-rm-blend]', box).forEach(btn=>{
+      btn.onclick = ()=>{ blendParts.splice(+btn.dataset.rmBlend,1); renderBlendParts(); };
+    });
+  }
+
+  function renderPurchases(){
+    const box = $('#purchaseList', page);
+    if(!box) return;
+    box.innerHTML = purchases.map((p,i)=>`
+      <div class="card" style="margin-bottom:9px;padding:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-size:12px;color:var(--sub)">第 ${i+1} 次</span>
+          <button type="button" class="icon-btn" style="width:28px;height:28px" data-rm-purchase="${i}">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg>
+          </button>
+        </div>
+        <div class="row2">
+          <label class="fld" style="margin-bottom:8px"><span class="fld-l">日期</span>
+            <input class="inp" type="date" data-pu="${i}" data-f="date" value="${esc(p.date||'')}"></label>
+          <label class="fld" style="margin-bottom:8px"><span class="fld-l">实付金额</span>
+            <input class="inp" type="number" inputmode="decimal" data-pu="${i}" data-f="price" value="${esc(p.price??'')}" placeholder="元"></label>
+        </div>
+        <label class="fld" style="margin-bottom:0"><span class="fld-l">重量 (g)</span>
+          <input class="inp" type="number" inputmode="decimal" data-pu="${i}" data-f="weight" value="${esc(p.weight??'')}" placeholder="克"></label>
+      </div>`).join('');
+    $$('[data-pu]', box).forEach(inp=>{
+      inp.oninput = ()=>{ purchases[+inp.dataset.pu][inp.dataset.f] = inp.value; };
+    });
+    $$('[data-rm-purchase]', box).forEach(btn=>{
+      btn.onclick = ()=>{ purchases.splice(+btn.dataset.rmPurchase,1); renderPurchases(); };
+    });
+  }
+
+  renderBlendParts(); renderPurchases();
+
+  /* 关键修复：把新增按钮绑定到局部变量 */
+  $('#addBlendBtn', page).onclick = ()=>{
+    blendParts.push({ origin:'', variety:'', process:'' });
+    renderBlendParts();
+  };
+  $('#addPurchaseBtn', page).onclick = ()=>{
+    purchases.push({ date: todayStr(), price:'', weight:'' });
+    renderPurchases();
+  };
+
+  page._beforeSave = ()=>{
+    const o = readForm(page);
+    o.isBlend = $('[data-act="toggle-blend"]', page).classList.contains('on');
+    const activeStatus = $('#formStatusRow .qs-btn[data-status].on', page);
+    o.status = activeStatus ? activeStatus.dataset.status : 'drinking';
+    o.friendShare = $('#formStatusRow .qs-btn[data-friend]', page).classList.contains('on');
+    o.blendParts = blendParts;
+    o.purchases  = purchases;
+    return o;
+  };
+}
+
+function viewRecord(){
+  return `
+  <div class="page-head">
+    <h1 class="title">记一笔</h1>
+    <button class="round-add" data-act="new-record">${ICON.plus()}</button>
+  </div>
+
+  <div class="search-bar">
+    <span class="s-icon">${ICON.search()}</span>
+    <input id="recordSearch" type="text" placeholder="搜索豆名 / 店名 / 笔记…"
+      value="${esc(ui.searchRecord)}" oninput="window.__searchRecord(this.value)">
+    ${ui.searchRecord?`<button class="s-clear" onclick="window.__clearSearch('record')">${ICON.close()}</button>`:''}
+  </div>
+
+  <div id="recordList">${renderRecordList()}</div>
+  <button class="fab" data-act="new-record">${ICON.plus()}</button>`;
+}
+
+function renderRecordList(){
+  const q = (ui.searchRecord||'').trim().toLowerCase();
+  let items = [
+    ...state.brews.map(b=>({t:'brew', d:b, ts:b.createdAt||0})),
+    ...state.experiences.map(e=>({t:'exp', d:e, ts:e.createdAt||0}))
+  ];
+  if(q){
+    items = items.filter(it=>{
+      const d = it.d;
+      const hay = [
+        d.beanName, d.shop, d.drink, d.flavor, d.notes, d.technique, d.experience, d.other,
+        d.dripper, d.grinder, d.method
+      ].filter(Boolean).join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+  }
+  items.sort((a,b)=> (b.d.date||'').localeCompare(a.d.date||'') || (b.ts-a.ts));
+  if(!items.length) return `<div class="empty">${q?'没有匹配的记录':'还没有记录，点 + 开始记录'}</div>`;
+  return items.map(it=>{
+    if(it.t==='brew'){
+      const b = it.d;
+      return `<div class="swipe" data-swipe-id="${b.id}" data-swipe-type="brew">
+        <div class="swipe-actions">
+          <button class="swipe-btn edit" data-act="edit-brew" data-id="${b.id}">修改</button>
+          <button class="swipe-btn del" data-act="del-brew" data-id="${b.id}">删除</button>
+        </div>
+        <div class="swipe-content" data-act="open-brew" data-id="${b.id}">
+          <div class="card-top">
+            <div class="card-name">${esc(b.beanName||'手冲')}</div>
+            <div class="card-tags"><span class="tag tag-focus">冲煮</span></div>
+          </div>
+          <div class="card-meta">
+            <span>${esc(b.date||'')}</span>
+            ${b.dripper?`<span>${esc(b.dripper)}</span>`:''}
+            ${b.dose?`<span>${esc(String(b.dose))}g</span>`:''}
+            ${b.ratio?`<span>1:${esc(String(b.ratio))}</span>`:''}
+          </div>
+        </div>
+      </div>`;
+    }else{
+      const e = it.d;
+      return `<div class="swipe" data-swipe-id="${e.id}" data-swipe-type="exp">
+        <div class="swipe-actions">
+          <button class="swipe-btn edit" data-act="edit-exp" data-id="${e.id}">修改</button>
+          <button class="swipe-btn del" data-act="del-exp" data-id="${e.id}">删除</button>
+        </div>
+        <div class="swipe-content" data-act="open-exp" data-id="${e.id}">
+          <div class="card-top">
+            <div class="card-name">${esc(e.shop||e.drink||'门店体验')}</div>
+            <div class="card-tags"><span class="tag tag-status">体验</span></div>
+          </div>
+          <div class="card-meta">
+            <span>${esc(e.date||'')}</span>
+            ${e.drink?`<span>${esc(e.drink)}</span>`:''}
+            ${e.price?`<span>¥${esc(String(e.price))}</span>`:''}
+          </div>
+        </div>
+      </div>`;
+    }
+  }).join('');
+}
+window.__searchRecord = function(val){
+  ui.searchRecord = val;
+  const el = $('#recordList');
+  if(el) el.innerHTML = renderRecordList();
+  $$('#recordList .swipe').forEach(attachSwipe);
+  const wrap = $('.search-bar');
+  if(wrap){
+    const existing = $('.s-clear', wrap);
+    if(val && !existing){
+      const btn = document.createElement('button');
+      btn.className = 's-clear';
+      btn.innerHTML = ICON.close();
+      btn.onclick = ()=> window.__clearSearch('record');
+      wrap.appendChild(btn);
+    }else if(!val && existing){
+      existing.remove();
+    }
+  }
+};
+
+function openBrewForm(id){
+  const b = id ? state.brews.find(x=>x.id===id) : null;
+  const d = b || {
+    beanId:'', beanName:'', friendShare:false, date:todayStr(),
+    dripper:'', grinder:'', grind:'', method:'', dose:'', ratio:'', waterTemp:'',
+    totalWater:'', totalTime:'', ratings:{bitter:0,sour:0,sweet:0,body:0,overall:0},
+    flavor:'', technique:'', notes:''
+  };
+  /* 旧备份把评分存成平铺字段，没有 ratings 对象。
+     直接读 d.ratings 会得到空对象 → 星级全显示为 0 → 保存即把评分清零。 */
+  const r = ratingsOf(d);
+  const drinking = state.beans.filter(x=>x.status==='drinking');
+  /* 若该记录关联的豆子不在「在喝」列表（已喝完 / 囤豆中），
+     原代码会让下拉框找不到对应项而回落到第一项，
+     保存时 beanId 被清空 → 记录与豆子断链、从豆子详情页消失。
+     这里把原豆子补进选项并选中它。 */
+  let beanOpts = drinking;
+  const curBean = d.beanId ? state.beans.find(x=>x.id===d.beanId) : null;
+  if(curBean && !drinking.some(x=>x.id===curBean.id)) beanOpts = [curBean].concat(drinking);
+  const beanOptions = beanOpts.map(x=>{
+    const sel = (x.id===d.beanId) ? ' selected' : '';
+    const tag = x.friendShare ? '（朋友分享）' : '';
+    const st  = (x.status!=='drinking') ? ' · ' + (STATUS[x.status]||'') : '';
+    return `<option value="${x.id}"${sel}>${esc(x.name)}${tag}${st}</option>`;
+  }).join('');
+  const page = openFull(id?'修改冲煮记录':'制作记录', `
+    <label class="fld"><span class="fld-l">豆子</span>
+      <select class="inp" data-k="beanSelect" id="beanSelect">
+        <option value="">— 手动输入 —</option>
+        ${beanOptions}
+      </select></label>
+    <div id="manualBeanBox" style="${d.beanId?'display:none':''}">
+      <label class="fld"><span class="fld-l">豆子名称</span>
+        <input class="inp" data-k="beanName" value="${esc(d.beanName)}" placeholder="例如：耶加雪菲"></label>
+      <div class="chk ${d.friendShare?'on':''}" data-act="toggle-brew-friend">
+        <span class="box">${ICON.check()}</span>
+        <span class="lbl">朋友分享（自动存入豆仓）${d.friendShare?' ✓':''}</span>
+      </div>
+    </div>
+    <label class="fld"><span class="fld-l">冲煮日期</span>
+      <input class="inp" type="date" data-k="date" value="${esc(d.date)}"></label>
+    <div class="divider"></div>
+    <div class="row2">
+      <label class="fld"><span class="fld-l">滤杯 / 咖啡机</span>
+        <input class="inp" data-k="dripper" data-hist="dripper" value="${esc(d.dripper)}" placeholder="V60"></label>
+      <label class="fld"><span class="fld-l">粉量 (g)</span>
+        <input class="inp" type="number" inputmode="decimal" data-k="dose" value="${esc(d.dose)}" placeholder="15"></label>
+    </div>
+    <div class="row2">
+      <label class="fld"><span class="fld-l">磨豆机</span>
+        <input class="inp" data-k="grinder" data-hist="grinder" value="${esc(d.grinder)}" placeholder="C40"></label>
+      <label class="fld"><span class="fld-l">研磨度</span>
+        <input class="inp" data-k="grind" data-hist="grind" value="${esc(d.grind)}" placeholder="22格"></label>
+    </div>
+    <div class="row2">
+      <label class="fld"><span class="fld-l">方式</span>
+        <input class="inp" data-k="method" data-hist="method" value="${esc(d.method)}" placeholder="一刀流 / 三段式"></label>
+      <label class="fld"><span class="fld-l">粉水比</span>
+        <input class="inp" data-k="ratio" value="${esc(d.ratio)}" placeholder="15"></label>
+    </div>
+    <div class="row2">
+      <label class="fld"><span class="fld-l">总水量 (g)</span>
+        <input class="inp" type="number" inputmode="decimal" data-k="totalWater" value="${esc(d.totalWater)}" placeholder="225"></label>
+      <label class="fld"><span class="fld-l">水温 (℃)</span>
+        <input class="inp" type="number" inputmode="decimal" data-k="waterTemp" value="${esc(d.waterTemp)}" placeholder="92"></label>
+    </div>
+    <label class="fld"><span class="fld-l">总时长</span>
+      <input class="inp" data-k="totalTime" value="${esc(d.totalTime)}" placeholder="2:10"></label>
+    <div class="divider"></div>
+    <div style="font-size:12px;color:var(--sub);margin-bottom:8px">口感评分</div>
+    <div class="rating-grid">
+      ${ratingRow('苦','bitter',r.bitter)}
+      ${ratingRow('酸','sour',r.sour)}
+      ${ratingRow('甜感','sweet',r.sweet)}
+      ${ratingRow('醇厚','body',r.body)}
+      <div class="full">${ratingRow('整体','overall',r.overall)}</div>
+    </div>
+    <div class="divider"></div>
+    <label class="fld"><span class="fld-l">风味</span>
+      <textarea class="inp" data-k="flavor" placeholder="柑橘、红茶感…">${esc(d.flavor)}</textarea></label>
+    <label class="fld"><span class="fld-l">手法备注</span>
+      <textarea class="inp" data-k="technique">${esc(d.technique)}</textarea></label>
+    <label class="fld"><span class="fld-l">笔记</span>
+      <textarea class="inp" data-k="notes">${esc(d.notes)}</textarea></label>
+    <div class="btn-row">
+      <button class="btn ghost" data-act="close-full">取消</button>
+      <button class="btn" data-act="save-brew" data-id="${id||''}">保存</button>
+    </div>
+  `);
+  const sel = $('#beanSelect', page);
+  sel.onchange = ()=>{
+    $('#manualBeanBox', page).style.display = sel.value ? 'none' : '';
+  };
+  $$('[data-hist]', page).forEach(inp=> attachHistory(inp));
+
+  const doseEl = $('[data-k="dose"]', page);
+  const ratioEl = $('[data-k="ratio"]', page);
+  const waterEl = $('[data-k="totalWater"]', page);
+  function calcWater(){
+    const dv = num(doseEl.value), rv = num(ratioEl.value);
+    if(dv>0 && rv>0) waterEl.value = (dv*rv).toFixed(0);
+  }
+  function calcRatio(){
+    const dv = num(doseEl.value), wv = num(waterEl.value);
+    if(dv>0 && wv>0) ratioEl.value = (wv/dv).toFixed(1);
+  }
+  if(ratioEl) ratioEl.addEventListener('blur', calcWater);
+  if(waterEl) waterEl.addEventListener('blur', calcRatio);
+  if(doseEl) doseEl.addEventListener('blur', ()=>{
+    if(ratioEl.value && !waterEl.value) calcWater();
+    else if(waterEl.value && !ratioEl.value) calcRatio();
+  });
+
+  page._beforeSave = ()=>{
+    const o = readForm(page);
+    if(sel.value){
+      const bean = state.beans.find(x=>x.id===sel.value);
+      o.beanId = sel.value; o.beanName = bean?bean.name:'';
+      o.friendShare = false;
+    }else{
+      o.beanId = '';
+      o.friendShare = $('[data-act="toggle-brew-friend"]', page).classList.contains('on');
+    }
+    /* 总时长与粉水比：用户习惯输入 2.30 / 2：30，统一存成 2:30 形式。
+       doseEl / ratioEl / waterEl 及其联动已由第 10 项补丁提前声明。 */
+    o.totalTime = normTime(o.totalTime);
+    o.ratio     = normRatio(o.ratio);
+    o.ratings = {
+      bitter:  num(o.bitter),
+      sour:    num(o.sour),
+      sweet:   num(o.sweet),
+      body:    num(o.body),
+      overall: num(o.overall)
+    };
+    delete o.bitter; delete o.sour; delete o.sweet; delete o.body; delete o.overall;    ['dripper','grinder','grind','method'].forEach(k=>{
+      const v = (o[k]||'').trim();
+      if(v){
+        const arr = state.memory[k] || (state.memory[k]=[]);
+        const i = arr.indexOf(v);
+        if(i>=0) arr.splice(i,1);
+        arr.unshift(v);
+        if(arr.length>12) arr.length = 12;
+      }
+    });
+    return o;
+  };
+}
+function ratingRow(label, key, val){
+  const v = num(val);
+  return `<div class="rating-row">
+    <span class="rl">${label}</span>
+    <span class="stars" data-stars="${key}" data-value="${v}">
+      ${[1,2,3,4,5].map(i=>`<button type="button" class="star ${i<=v?'on':''}" data-v="${i}">★</button>`).join('')}
+    </span>
+  </div>`;
+}
+
+function openExpForm(id){
+  const b = id ? state.experiences.find(x=>x.id===id) : null;
+  const d = b || { date:todayStr(), shop:'', drink:'', origin:'', roastLevel:'', other:'', price:'', rating:0, experience:'' };
+  const page = openFull(id?'修改体验':'其他体验', `
+    <label class="fld"><span class="fld-l">日期</span>
+      <input class="inp" type="date" data-k="date" value="${esc(d.date)}"></label>
+    <label class="fld"><span class="fld-l">店名</span>
+      <input class="inp" data-k="shop" value="${esc(d.shop)}" placeholder="门店名称"></label>
+    <label class="fld"><span class="fld-l">饮品名字</span>
+      <input class="inp" data-k="drink" value="${esc(d.drink)}" placeholder="拿铁 / 手冲"></label>
+    <div class="row2">
+      <label class="fld"><span class="fld-l">豆子产地</span>
+        <input class="inp" data-k="origin" value="${esc(d.origin)}" placeholder="埃塞俄比亚"></label>
+      <label class="fld"><span class="fld-l">烘焙度</span>
+        <input class="inp" data-k="roastLevel" value="${esc(d.roastLevel)}" placeholder="中浅烘"></label>
+    </div>
+    <div class="row2">
+      <label class="fld"><span class="fld-l">价格</span>
+        <input class="inp" type="number" inputmode="decimal" data-k="price" value="${esc(d.price)}" placeholder="元"></label>
+      <label class="fld"><span class="fld-l">评分</span>
+        <span class="stars" data-stars="rating" data-value="${num(d.rating)}" style="padding-top:8px">
+          ${[1,2,3,4,5].map(i=>`<button type="button" class="star ${i<=num(d.rating)?'on':''}" data-v="${i}">★</button>`).join('')}
+        </span></label>
+    </div>
+    <label class="fld"><span class="fld-l">其他</span>
+      <input class="inp" data-k="other" value="${esc(d.other)}" placeholder="环境、服务…"></label>
+    <label class="fld"><span class="fld-l">体验</span>
+      <textarea class="inp" data-k="experience">${esc(d.experience)}</textarea></label>
+    <div class="btn-row">
+      <button class="btn ghost" data-act="close-full">取消</button>
+      <button class="btn" data-act="save-exp" data-id="${id||''}">保存</button>
+    </div>
+  `);
+  page._beforeSave = ()=> readForm(page);
+}
+
+function viewRecipes(){
+  return `
+  <div class="page-head">
+    <h1 class="title">冲煮方案</h1>
+    <button class="pill-toggle" data-act="toggle-recipe-dense">${ui.recipeDense?'详细':'简略'}</button>
+    <button class="round-add" data-act="add-recipe">${ICON.plus()}</button>
+  </div>
+
+  <div class="search-bar">
+    <span class="s-icon">${ICON.search()}</span>
+    <input id="recipeSearch" type="text" placeholder="搜索方案名 / 滤杯 / 磨豆机…"
+      value="${esc(ui.searchRecipe)}" oninput="window.__searchRecipe(this.value)">
+    ${ui.searchRecipe?`<button class="s-clear" onclick="window.__clearSearch('recipe')">${ICON.close()}</button>`:''}
+  </div>
+
+  <div id="recipeList">${renderRecipeList()}</div>
+  <button class="fab" data-act="add-recipe">${ICON.plus()}</button>`;
+}
+function renderRecipeList(){
+  let list = [...state.recipes];
+  const q = (ui.searchRecipe||'').trim().toLowerCase();
+  if(q){
+    list = list.filter(r=>{
+      const hay = [r.title, r.dripper, r.grinder, r.grind, r.method, r.flavor, r.technique, r.notes]
+        .filter(Boolean).join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+  }
+  list.sort((a,b)=>{
+    if((b.pinned?1:0)-(a.pinned?1:0)) return (b.pinned?1:0)-(a.pinned?1:0);
+    return (b.createdAt||0)-(a.createdAt||0);
+  });
+  return list.length ? list.map(recipeCard).join('')
+    : `<div class="empty">${q?'没有匹配的方案':'还没有方案，点右上角 + 新建'}</div>`;
+}
+window.__searchRecipe = function(val){
+  ui.searchRecipe = val;
+  const el = $('#recipeList');
+  if(el) el.innerHTML = renderRecipeList();
+  $$('#recipeList .swipe').forEach(attachSwipe);
+  const wrap = $('.search-bar');
+  if(wrap){
+    const existing = $('.s-clear', wrap);
+    if(val && !existing){
+      const btn = document.createElement('button');
+      btn.className = 's-clear';
+      btn.innerHTML = ICON.close();
+      btn.onclick = ()=> window.__clearSearch('recipe');
+      wrap.appendChild(btn);
+    }else if(!val && existing){
+      existing.remove();
+    }
+  }
+};
+
+function recipeCard(r){
+  const dense = ui.recipeDense;
+  return `
+  <div class="swipe" data-swipe-id="${r.id}" data-swipe-type="recipe">
+    <div class="swipe-actions">
+      <button class="swipe-btn pin" data-act="pin-recipe" data-id="${r.id}">${r.pinned?'取消':'置顶'}</button>
+      <button class="swipe-btn edit" data-act="edit-recipe" data-id="${r.id}">修改</button>
+      <button class="swipe-btn del"  data-act="del-recipe"  data-id="${r.id}">删除</button>
+    </div>
+    <div class="swipe-content" data-act="open-recipe" data-id="${r.id}">
+      <div class="card-top">
+        <div class="card-name">${esc(r.title||'未命名方案')}</div>
+        <div class="card-tags">
+          ${r.pinned?`<span class="tag tag-status">置顶</span>`:''}
+          ${r.rating?`<span class="tag tag-focus">${'★'.repeat(num(r.rating))}</span>`:''}
+        </div>
+      </div>
+      ${ dense ? `<div class="grid2">
+        <div><div class="k">滤杯</div><div class="v">${esc(r.dripper||'—')}</div></div>
+        <div><div class="k">粉量</div><div class="v">${esc(String(r.dose||'—'))}${r.dose?'g':''}</div></div>
+        <div><div class="k">磨豆机</div><div class="v">${esc(r.grinder||'—')}</div></div>
+        <div><div class="k">研磨度</div><div class="v">${esc(r.grind||'—')}</div></div>
+        <div><div class="k">粉水比</div><div class="v">${r.ratio?'1:'+esc(String(r.ratio)):'—'}</div></div>
+        <div><div class="k">水温</div><div class="v">${esc(String(r.waterTemp||'—'))}${r.waterTemp?'℃':''}</div></div>
+      </div>` : `<div class="card-meta">
+        ${r.dripper?`<span>${esc(r.dripper)}</span>`:''}
+        ${r.dose?`<span>${esc(String(r.dose))}g</span>`:''}
+        ${r.ratio?`<span>1:${esc(String(r.ratio))}</span>`:''}
+        ${r.waterTemp?`<span>${esc(String(r.waterTemp))}℃</span>`:''}
+      </div>` }
+    </div>
+  </div>`;
+}
+function renderRecipeDetail(r){
+  return `
+  <div class="page-head">
+    <span style="width:36px;flex:0 0 36px"></span>
+    <h1 class="title" style="font-size:18px;text-align:center">${esc(r.title||'方案')}</h1>
+    <span style="width:36px;flex:0 0 36px"></span>
+  </div>
+  <div class="card">
+    <div class="grid2">
+      <div><div class="k">滤杯 / 咖啡机</div><div class="v">${esc(r.dripper||'—')}</div></div>
+      <div><div class="k">粉量</div><div class="v">${esc(String(r.dose||'—'))}${r.dose?' g':''}</div></div>
+      <div><div class="k">磨豆机</div><div class="v">${esc(r.grinder||'—')}</div></div>
+      <div><div class="k">研磨度</div><div class="v">${esc(r.grind||'—')}</div></div>
+      <div><div class="k">方式</div><div class="v">${esc(r.method||'—')}</div></div>
+      <div><div class="k">粉水比</div><div class="v">${r.ratio?'1:'+esc(String(r.ratio)):'—'}</div></div>
+      <div><div class="k">总水量</div><div class="v">${esc(String(r.totalWater||'—'))}${r.totalWater?' g':''}</div></div>
+      <div><div class="k">水温</div><div class="v">${esc(String(r.waterTemp||'—'))}${r.waterTemp?' ℃':''}</div></div>
+      <div><div class="k">总时长</div><div class="v">${esc(r.totalTime||'—')}</div></div>
+    </div>
+    ${r.rating?`<div class="divider"></div><div class="k" style="font-size:11.5px;color:var(--sub)">评分</div>
+      <div style="color:var(--focus);font-size:17px;letter-spacing:2px">${'★'.repeat(num(r.rating))}${'☆'.repeat(5-num(r.rating))}</div>`:''}
+    ${r.flavor?`<div class="divider"></div><div class="k" style="font-size:11.5px;color:var(--sub)">风味</div>
+      <div style="font-size:13.5px;margin-top:3px">${esc(r.flavor)}</div>`:''}
+    ${r.technique?`<div class="divider"></div><div class="k" style="font-size:11.5px;color:var(--sub)">手法备注</div>
+      <div style="font-size:13.5px;margin-top:3px;white-space:pre-wrap">${esc(r.technique)}</div>`:''}
+    ${r.notes?`<div class="divider"></div><div class="k" style="font-size:11.5px;color:var(--sub)">笔记</div>
+      <div style="font-size:13.5px;margin-top:3px;white-space:pre-wrap">${esc(r.notes)}</div>`:''}
+  </div>
+  <div class="btn-row" style="margin-top:20px">
+    <button class="btn" data-act="edit-recipe" data-id="${r.id}">修改方案</button>
+  </div>
+  `;
+}
+function openRecipeForm(id){
+  const b = id ? state.recipes.find(x=>x.id===id) : null;
+  const d = b || { title:'', dripper:'', grinder:'', grind:'', method:'', dose:'', ratio:'',
+    waterTemp:'', totalWater:'', totalTime:'', rating:0, flavor:'', technique:'', notes:'', pinned:false };
+  const page = openFull(id?'修改方案':'新建方案', `
+    <label class="fld"><span class="fld-l">方案名称</span>
+      <input class="inp" data-k="title" value="${esc(d.title)}" placeholder="例如：V60 三段式"></label>
+    <div class="row2">
+      <label class="fld"><span class="fld-l">滤杯 / 咖啡机</span>
+        <input class="inp" data-k="dripper" data-hist="dripper" value="${esc(d.dripper)}" placeholder="V60"></label>
+      <label class="fld"><span class="fld-l">粉量 (g)</span>
+        <input class="inp" type="number" inputmode="decimal" data-k="dose" value="${esc(d.dose)}"></label>
+    </div>
+    <div class="card" style="padding:12px;margin-bottom:12px">
+      <div class="row2">
+        <label class="fld" style="margin-bottom:0"><span class="fld-l">磨豆机</span>
+          <input class="inp" data-k="grinder" data-hist="grinder" value="${esc(d.grinder)}"></label>
+        <label class="fld" style="margin-bottom:0"><span class="fld-l">研磨度</span>
+          <input class="inp" data-k="grind" data-hist="grind" value="${esc(d.grind)}"></label>
+      </div>
+    </div>
+    <div class="row2">
+      <label class="fld"><span class="fld-l">方式</span>
+        <input class="inp" data-k="method" data-hist="method" value="${esc(d.method)}"></label>
+      <label class="fld"><span class="fld-l">粉水比</span>
+        <input class="inp" data-k="ratio" value="${esc(d.ratio)}"></label>
+    </div>
+    <div class="row2">
+      <label class="fld"><span class="fld-l">总水量 (g)</span>
+        <input class="inp" type="number" inputmode="decimal" data-k="totalWater" value="${esc(d.totalWater)}"></label>
+      <label class="fld"><span class="fld-l">水温 (℃)</span>
+        <input class="inp" type="number" inputmode="decimal" data-k="waterTemp" value="${esc(d.waterTemp)}"></label>
+    </div>
+    <label class="fld"><span class="fld-l">总时长</span>
+      <input class="inp" data-k="totalTime" value="${esc(d.totalTime)}"></label>
+    <div class="fld"><span class="fld-l">评价</span>
+      <span class="stars" data-stars="rating" data-value="${num(d.rating)}">
+        ${[1,2,3,4,5].map(i=>`<button type="button" class="star ${i<=num(d.rating)?'on':''}" data-v="${i}">★</button>`).join('')}
+      </span></div>
+    <label class="fld"><span class="fld-l">风味</span>
+      <textarea class="inp" data-k="flavor">${esc(d.flavor)}</textarea></label>
+    <label class="fld"><span class="fld-l">手法备注</span>
+      <textarea class="inp" data-k="technique">${esc(d.technique)}</textarea></label>
+    <label class="fld"><span class="fld-l">笔记</span>
+      <textarea class="inp" data-k="notes">${esc(d.notes)}</textarea></label>
+    <div class="btn-row">
+      <button class="btn ghost" data-act="close-full">取消</button>
+      <button class="btn" data-act="save-recipe" data-id="${id||''}">保存</button>
+    </div>
+  `);
+  $$('[data-hist]', page).forEach(inp=> attachHistory(inp));
+  page._beforeSave = ()=> readForm(page);
+}
+
+let statsYM = todayStr().slice(0,7);
+function viewStats(){
+  const [y, m] = statsYM.split('-').map(Number);
+  const monthStr = statsYM;
+  const daysInMonth = new Date(y, m, 0).getDate();
+  const monthPurchases = state.beans.flatMap(b => (b.purchases||[]).map(p=>({...p, bean:b})))
+    .filter(p => (p.date||'').startsWith(monthStr));
+  const beanSpend = monthPurchases.reduce((s,p)=>s+num(p.price),0);
+  const shopList = state.experiences.filter(e=>(e.date||'').startsWith(monthStr));
+  const shopSpend = shopList.reduce((s,e)=>s+num(e.price),0);
+  const totalWeight = monthPurchases.reduce((s,p)=>s+num(p.weight),0);
+  const avgPrice = totalWeight>0 ? beanSpend/totalWeight : 0;
+
+  const monthBrews = state.brews.filter(b=>(b.date||'').startsWith(monthStr));
+  const brewCount = monthBrews.length;
+  let brewSpend = 0;
+  monthBrews.forEach(b=>{
+    const bean = state.beans.find(x=>x.id===b.beanId);
+    if(!bean) return;
+    const p = priceInfo(bean);
+    if(p.latest && b.dose) brewSpend += num(b.dose) * p.latest;
+  });
+
+  const buyCount = {};
+  state.beans.forEach(b=>{
+    const n = (b.purchases||[]).length;
+    if(n>0) buyCount[b.name||'未命名'] = (buyCount[b.name||'未命名']||0) + n;
+  });
+  const topBeans = Object.entries(buyCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const planCount = {};
+  state.brews.forEach(b=>{
+    const key = [b.dripper, b.method].filter(Boolean).join(' · ');
+    if(key) planCount[key] = (planCount[key]||0)+1;
+  });
+  const topPlans = Object.entries(planCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const countryCount = {};
+  state.beans.forEach(b=>{
+    const src = b.isBlend ? (b.blendParts||[]).map(x=>x.origin).filter(Boolean) : [b.origin];
+    src.forEach(o=>{
+      const c = toCountry(o);
+      if(c) countryCount[c] = (countryCount[c]||0)+1;
+    });
+  });
+  const topCountries = Object.entries(countryCount).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const procCount = {};
+  state.beans.forEach(b=>{
+    const src = b.isBlend ? (b.blendParts||[]).map(x=>x.process).filter(Boolean) : [b.process];
+    src.forEach(p=>{ if(p) procCount[p] = (procCount[p]||0)+1; });
+  });
+  const topProcs = Object.entries(procCount).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const yearBean = Array(12).fill(0), yearShop = Array(12).fill(0);
+  state.beans.forEach(b => (b.purchases||[]).forEach(p=>{
+    if((p.date||'').startsWith(String(y))){
+      const mo = Number(p.date.slice(5,7))-1;
+      if(mo>=0&&mo<12) yearBean[mo] += num(p.price);
+    }
+  }));
+  state.experiences.forEach(e=>{
+    if((e.date||'').startsWith(String(y))){
+      const mo = Number(e.date.slice(5,7))-1;
+      if(mo>=0&&mo<12) yearShop[mo] += num(e.price);
+    }
+  });
+  const maxVal = Math.max(1, ...yearBean, ...yearShop);
+
+  return `
+  <div class="page-head">
+    <h1 class="title">统计</h1>
+    <button class="pill-toggle" data-act="pick-month">${y}年${m}月 ▾</button>
+  </div>
+
+  <div class="stat-big">
+    <div class="sb-row">
+      <div class="sb-item"><div class="sb-v">${brewCount}</div><div class="sb-k">本月冲煮次数</div></div>
+      <div class="sb-item"><div class="sb-v">¥${brewSpend.toFixed(1)}</div><div class="sb-k">冲煮花费</div></div>
+      <div class="sb-item"><div class="sb-v">¥${avgPrice.toFixed(2)}</div><div class="sb-k">平均克价</div></div>
+    </div>
+  </div>
+
+  <div class="stat-triple">
+    <div class="st-item">
+      <div class="st-v">¥${beanSpend.toFixed(1)}</div>
+      <div class="st-k">买豆支出</div>
+    </div>
+    <div class="st-item">
+      <div class="st-v">${totalWeight.toFixed(0)}g</div>
+      <div class="st-k">买豆重量</div>
+    </div>
+    <div class="st-item">
+      <div class="st-v">¥${shopSpend.toFixed(1)}</div>
+      <div class="st-k">门店消费</div>
+    </div>
+  </div>
+
+  <div class="stat-title">年度消费统计（${y}年）</div>
+  <div class="vchart">
+    <div class="vchart-head"><span>单位：元</span><span>最高 ¥${maxVal.toFixed(0)}</span></div>
+    <div class="vchart-wrap">
+      <div class="vchart-y">
+        <span>${maxVal.toFixed(0)}</span>
+        <span>${(maxVal/2).toFixed(0)}</span>
+        <span>0</span>
+      </div>
+      <div class="vchart-plot">
+        <div class="vchart-grid" style="top:0"></div>
+        <div class="vchart-grid" style="top:50%"></div>
+        <div class="vchart-bars">
+          ${Array.from({length:12},(_,i)=>{
+            const bh = maxVal>0 ? yearBean[i]/maxVal*100 : 0;
+            const sh = maxVal>0 ? yearShop[i]/maxVal*100 : 0;
+            return `<div class="vchart-col" title="${i+1}月 买豆¥${yearBean[i].toFixed(1)} 门店¥${yearShop[i].toFixed(1)}">
+              <div class="vchart-pair">
+                <div class="vbar bean" style="height:${bh}%"></div>
+                <div class="vbar shop" style="height:${sh}%"></div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="vchart-months">
+      ${Array.from({length:12},(_,i)=>`<span>${i+1}</span>`).join('')}
+    </div>
+    <div class="chart-legend">
+      <span><i style="background:var(--accent)"></i>买豆</span>
+      <span><i style="background:var(--focus)"></i>门店</span>
+    </div>
+  </div>
+
+  ${ topPlans.length ? `<div class="stat-title">常用方案</div>
+  <div class="card">${topPlans.map(([k,v])=>barLine(k,v,Math.max(...topPlans.map(x=>x[1])))).join('')}</div>`:'' }
+  ${ topBeans.length ? `<div class="stat-title">常买豆子</div>
+  <div class="card">${topBeans.map(([k,v])=>barLine(k,v+' 次',Math.max(...topBeans.map(x=>x[1])))).join('')}</div>`:'' }
+  ${ topCountries.length ? `<div class="stat-title">产地分布（国家）</div>
+  <div class="card">${topCountries.map(([k,v])=>barLine(k,v,Math.max(...topCountries.map(x=>x[1])))).join('')}</div>`:'' }
+  ${ topProcs.length ? `<div class="stat-title">处理法</div>
+  <div class="card">${topProcs.map(([k,v])=>barLine(k,v,Math.max(...topProcs.map(x=>x[1])))).join('')}</div>`:'' }
+  <div style="height:20px"></div>
+  `;
+}
+function barLine(name, val, max){
+  const w = max>0 ? Math.max(3, val/max*100) : 0;
+  return `<div class="bar-line">
+    <div class="bl-name">${esc(name)}</div>
+    <div class="bl-track"><div class="bl-fill" style="width:${w}%"></div></div>
+    <div class="bl-val">${esc(String(val))}</div>
+  </div>`;
+}
+function openMonthPicker(cur, cb){
+  const [cy, cm] = cur.split('-').map(Number);
+  let y = cy;
+  const mask = document.createElement('div');
+  mask.className = 'mask';
+  mask.innerHTML = `<div class="modal" style="max-width:320px">
+    <div class="mp-year">
+      <button data-y="-1">‹</button>
+      <span class="y" id="mpY">${y}</span>
+      <button data-y="1">›</button>
+    </div>
+    <div class="mp-grid" id="mpGrid"></div>
+    <div class="m-btns" style="margin-top:16px">
+      <button class="btn ghost" data-close>取消</button>
+    </div>
+  </div>`;
+  document.body.appendChild(mask);
+  requestAnimationFrame(()=>mask.classList.add('in'));
+  function drawGrid(){
+    $('#mpY', mask).textContent = y;
+    $('#mpGrid', mask).innerHTML = Array.from({length:12},(_,i)=>{
+      const on = (y===cy && i+1===cm);
+      return `<button data-m="${i+1}" class="${on?'on':''}">${i+1}月</button>`;
+    }).join('');
+  }
+  drawGrid();
+  mask.onclick = e=>{
+    const yb = e.target.closest('[data-y]');
+    if(yb){ y += Number(yb.dataset.y); drawGrid(); return; }
+    const mb = e.target.closest('[data-m]');
+    if(mb){ close(); cb(`${y}-${String(mb.dataset.m).padStart(2,'0')}`); return; }
+    if(e.target===mask || e.target.closest('[data-close]')) close();
+  };
+  function close(){ mask.classList.remove('in'); setTimeout(()=>mask.remove(),200); }
+}
+
+function openSettings(){
+  const s = state.settings;
+  const page = openFull('设置', `
+    <label class="fld"><span class="fld-l">App 名称</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input class="inp" id="setName" value="${esc(s.appName)}" style="flex:1">
+        <button data-act="save-appname" style="width:44px;height:44px;flex:0 0 44px;border:0;border-radius:12px;
+          background:var(--accent);color:#fff;display:grid;place-items:center;cursor:pointer;padding:0">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6"
+            stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.4 4.4L19 7.5"/></svg>
+        </button>
+      </div></label>
+    <div class="divider"></div>
+    <div style="font-size:12px;color:var(--sub);margin-bottom:10px">主题配色</div>
+    <div id="themeGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
+    <div class="divider"></div>
+    <div class="btn-row" style="margin-top:0">
+      <button class="btn ghost" data-act="export-data">导出 / 复制</button>
+      <button class="btn ghost" data-act="import-data">导入备份</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn ghost" data-act="show-backup">查看备份数据</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn danger" data-act="clear-data">清空全部数据</button>
+    </div>
+    <div style="height:30px"></div>
+  `);
+  function drawThemes(){
+    $('#themeGrid', page).innerHTML = Object.entries(THEMES).map(([k,t])=>`
+      <button data-act="set-theme" data-key="${k}" style="border:2px solid ${s.theme===k?'var(--accent)':'var(--line)'};
+        background:${t.dark?'#161823':'hsl('+t.h+',22%,94%)'};border-radius:14px;padding:11px;cursor:pointer;
+        display:flex;align-items:center;gap:8px;text-align:left">
+        <span style="display:flex;gap:4px">
+          <i style="width:15px;height:15px;border-radius:50%;background:${t.accent};display:block"></i>
+          <i style="width:15px;height:15px;border-radius:50%;background:${t.focus};display:block"></i>
+          <i style="width:15px;height:15px;border-radius:50%;background:${t.deep};display:block"></i>
+        </span>
+        <span style="font-size:12.5px;color:${t.dark?'#E4E9F2':'#333'}">${t.name}</span>
+      </button>`).join('');
+  }
+  drawThemes();
+  page._refreshTheme = drawThemes;
+}
+
+function migrateOldData(d) {
+  const mapTheme = t => {
+    if (!t) return 'pink';
+    const m = { 'euro-blue':'blue', 'euro-pink':'pink', 'euro-green':'green',
+                'euro-gold':'gold', 'euro-purple':'purple', 'dark':'dark' };
+    return m[t] || 'pink';
+  };
+  const mapStatus = s => ({ '在喝':'drinking', '囤豆中':'stock', '喝完':'done' }[s] || 'drinking');
+
+  const newState = {
+    settings: {
+      appName: d.settings?.appName || '咖啡小记',
+      theme: mapTheme(d.settings?.theme)
+    },
+    beans: [], brews: [], experiences: [], recipes: [],
+    memory: { dripper:[], grinder:[], grind:[], method:[] }
+  };
+
+  if (Array.isArray(d.beans)) {
+    newState.beans = d.beans.map(b => {
+      let blendParts = [];
+      if (b.blendInfo && typeof b.blendInfo === 'string') {
+        try {
+          const arr = JSON.parse(b.blendInfo);
+          if (Array.isArray(arr)) blendParts = arr.map(p => ({
+            origin: p.origin || '', variety: p.variety || '', process: p.process || ''
+          }));
+        } catch(e) {}
+      }
+      if (!blendParts.length && b.blend && b.origin) {
+        const origins = b.origin.split('/').map(s=>s.trim());
+        const vars = (b.variety||'').split('/').map(s=>s.trim());
+        const procs = (b.process||'').split('/').map(s=>s.trim());
+        blendParts = origins.map((o,i)=>({
+          origin:o||'', variety:vars[i]||'', process:procs[i]||''
+        }));
+      }
+      return {
+        id: b.id || uid('bean'),
+        name: b.name || '',
+        roaster: b.roaster || '',
+        isBlend: !!b.blend,
+        origin: b.origin || '',
+        variety: b.variety || '',
+        process: b.process || '',
+        roastLevel: b.roastLevel || '',
+        roastDate: b.roastDate || '',
+        status: mapStatus(b.status),
+        friendShare: false,
+        purchases: (b.purchases||[]).map(p => ({
+          date: p.date || '', price: p.price || '', weight: p.weight || ''
+        })),
+        blendParts,
+        flavors: b.flavor || '',
+        officialRecipe: b.brewAdvice || '',
+        note: b.personalNotes || '',
+        createdAt: b.createdAt || Date.now()
+      };
+    });
+  }
+
+  if (Array.isArray(d.brews)) {
+    newState.brews = d.brews.map(b => {
+      const ratings = {
+        bitter: b.bitter || 0, sour: b.sour || 0,
+        sweet: b.sweet || 0, body: b.body || 0, overall: b.overall || 0
+      };
+      let ratio = '';
+      if (b.dose && b.water) {
+        const r = parseFloat(b.water) / parseFloat(b.dose);
+        if (!isNaN(r)) ratio = r.toFixed(1);
+      }
+      return {
+        id: b.id || uid('brew'),
+        beanId: b.beanId || '',
+        beanName: b.beanName || '',
+        friendShare: !!b.friendShare,
+        date: b.date || todayStr(),
+        dripper: b.dripper || '',
+        grinder: b.grinder || '',
+        grind: b.grindSize || '',
+        method: b.method || '',
+        dose: b.dose || '',
+        ratio,
+        waterTemp: b.temp || '',
+        totalWater: b.water || '',
+        totalTime: b.totalTime || '',
+        ratings,
+        flavor: b.flavor || '',
+        technique: b.technique || '',
+        notes: b.notes || '',
+        createdAt: b.createdAt || Date.now()
+      };
+    });
+  }
+
+  if (Array.isArray(d.experiences)) {
+    newState.experiences = d.experiences.map(e => ({
+      id: e.id || uid('exp'),
+      date: e.date || todayStr(),
+      shop: e.shop || '',
+      drink: e.drink || '',
+      origin: e.origin || '',
+      roastLevel: e.roastLevel || '',
+      other: e.other || '',
+      price: e.price || '',
+      rating: e.rating || 0,
+      experience: e.experience || '',
+      createdAt: e.createdAt || Date.now()
+    }));
+  }
+
+  if (Array.isArray(d.recipes)) {
+    newState.recipes = d.recipes.map(r => ({
+      id: r.id || uid('recipe'),
+      title: r.name || '',
+      dripper: r.dripper || '',
+      grinder: r.grinder || '',
+      grind: r.grind || '',
+      method: r.method || '',
+      dose: r.dose || '',
+      ratio: r.ratio || '',
+      waterTemp: r.temp || '',
+      totalWater: r.water || '',
+      totalTime: r.totalTime || '',
+      rating: r.rating || 0,
+      flavor: r.flavor || '',
+      technique: r.stages || '',
+      notes: r.review || '',
+      pinned: false,
+      createdAt: r.createdAt || Date.now()
+    }));
+  }
+
+  if (d.memory) newState.memory = Object.assign(newState.memory, d.memory);
+  return newState;
+}
+
+function openExportModal(){
+  const data = exportPayload();
+  const mask = document.createElement('div');
+  mask.className = 'mask';
+  mask.innerHTML = `<div class="modal">
+    <h3>导出 / 备份</h3>
+    <textarea class="inp" id="expText" readonly style="height:130px;font-size:12px;margin-bottom:14px"></textarea>
+    <div class="m-btns">
+      <button class="btn ghost" data-close>关闭</button>
+      <button class="btn" data-copy>复制到剪贴板</button>
+    </div>
+  </div>`;
+  document.body.appendChild(mask);
+  requestAnimationFrame(()=>mask.classList.add('in'));
+  $('#expText', mask).value = data;
+  mask.onclick = async e=>{
+    if(e.target.closest('[data-copy]')){ await copyText(data); return; }
+    if(e.target===mask || e.target.closest('[data-close]')) close();
+  };
+  function close(){ mask.classList.remove('in'); setTimeout(()=>mask.remove(),200); }
+}
+
+function openImportModal(){
+  const mask = document.createElement('div');
+  mask.className = 'mask';
+  mask.innerHTML = `<div class="modal">
+    <h3>导入备份</h3>
+    <textarea class="inp" id="impText" placeholder="把备份数据粘贴到这里…" style="height:150px;font-size:12px;margin-bottom:14px"></textarea>
+    <div class="m-btns">
+      <button class="btn ghost" data-close>取消</button>
+      <button class="btn" data-do>导入</button>
+    </div>
+  </div>`;
+  document.body.appendChild(mask);
+  requestAnimationFrame(()=>mask.classList.add('in'));
+  mask.onclick = e=>{
+    if(e.target.closest('[data-do]')){
+      const txt = $('#impText', mask).value.trim();
+      if(!txt){ toast('请先粘贴备份数据'); return; }
+      try{
+        const r = applyBackup(txt);
+        if(r.ok){ close(); render(); window.scrollTo(0,0); }
+        toast(r.msg);
+        return;
+        if(!d || typeof d!=='object') throw new Error('不是有效的备份数据');
+        const isOld = Array.isArray(d.beans) && d.beans.length > 0 &&
+                      (d.beans[0].blend !== undefined || d.beans[0].blendInfo !== undefined);
+        let newData;
+        if(isOld){
+          newData = migrateOldData(d);
+        }else{
+          newData = {
+            settings: Object.assign({}, state.settings, d.settings),
+            beans: d.beans || [],
+            brews: d.brews || [],
+            experiences: d.experiences || [],
+            recipes: d.recipes || [],
+            memory: Object.assign({dripper:[],grinder:[],grind:[],method:[]}, d.memory)
+          };
+        }
+        state.settings    = newData.settings;
+        state.beans       = newData.beans;
+        state.brews       = newData.brews;
+        state.experiences = newData.experiences;
+        state.recipes     = newData.recipes;
+        state.memory      = newData.memory;
+        saveState();
+        applyTheme(state.settings.theme);
+        close();
+        toast('导入成功');
+        render();
+      }catch(err){
+        toast('导入失败：' + err.message);
+      }
+      return;
+    }
+    if(e.target===mask || e.target.closest('[data-close]')) close();
+  };
+  function close(){ mask.classList.remove('in'); setTimeout(()=>mask.remove(),200); }
+}
+
+async function copyText(text){
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      await navigator.clipboard.writeText(text);
+      toast('已复制到剪贴板');
+      return;
+    }
+  }catch(e){}
+  try{
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+    toast('已复制到剪贴板');
+  }catch(e){ toast('复制失败，请手动长按选择'); }
+}
+
+function openFull(title, bodyHTML){
+  const el = document.createElement('div');
+  el.className = 'fullpage';
+  const hasCancel = bodyHTML.includes('data-act="close-full"');
+  el.innerHTML = `
+    <div class="fp-head">
+      <span style="width:36px;flex:0 0 36px"></span>
+      <h2 class="fp-title">${esc(title)}</h2>
+      <span style="width:36px;flex:0 0 36px"></span>
+    </div>
+    <div class="fp-body">${bodyHTML}</div>
+    ${hasCancel ? '' : `<button class="fab-back" data-close>${ICON.back()}</button>`}
+  `;
+  document.body.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add('in'));
+  el.querySelectorAll('[data-close]').forEach(btn=>{
+    btn.onclick = ()=>{
+      el.classList.remove('in');
+      setTimeout(()=>el.remove(), 240);
+    };
+  });
+  $$('.stars', el).forEach(box=>{
+    box.addEventListener('click', e=>{
+      const s = e.target.closest('.star');
+      if(!s) return;
+      const v = +s.dataset.v;
+      box.dataset.value = v;
+      $$('.star', box).forEach(st=> st.classList.toggle('on', +st.dataset.v <= v));
+    });
+  });
+  return el;
+}
+function readForm(root){
+  const out = {};
+  $$('[data-k]', root).forEach(el=>{ out[el.dataset.k] = el.value; });
+  $$('[data-stars]', root).forEach(el=>{ out[el.dataset.stars] = +el.dataset.value || 0; });
+  return out;
+}
+function attachHistory(input){
+  const key = input.dataset.hist;
+  input.addEventListener('focus', ()=> showHist(input, key));
+  input.addEventListener('click', ()=> showHist(input, key));
+  input.addEventListener('blur', ()=> setTimeout(hideHist, 160));
+}
+let curHistPop = null;
+function hideHist(){ if(curHistPop){ curHistPop.remove(); curHistPop = null; } }
+function showHist(input, key){
+  hideHist();
+  const list = (state.memory[key]||[]).filter(Boolean);
+  if(!list.length) return;
+  const r = input.getBoundingClientRect();
+  const pop = document.createElement('div');
+  pop.className = 'hist-pop';
+  pop.innerHTML = list.map(v=>`<button type="button">${esc(v)}</button>`).join('');
+  pop.style.left = r.left + 'px';
+  pop.style.top  = (r.bottom + 4) + 'px';
+  pop.style.width = r.width + 'px';
+  document.body.appendChild(pop);
+  curHistPop = pop;
+  pop.addEventListener('mousedown', e=>{
+    const b = e.target.closest('button');
+    if(!b) return;
+    e.preventDefault();
+    input.value = b.textContent;
+    input.dispatchEvent(new Event('input'));
+    hideHist();
+  });
+}
+
+function attachSwipe(el){
+  const content = $('.swipe-content', el);
+  if(!content) return;
+  const actions = $('.swipe-actions', el);
+  if(!actions) return;
+  const actionW = actions.offsetWidth || ($$('.swipe-btn', actions).length * 70);
+  let startX = 0, startY = 0, curX = 0, moving = false, decided = false, open = false;
+  content.addEventListener('touchstart', e=>{
+    if(e.touches.length !== 1) return;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    curX = 0; moving = true; decided = false;
+  }, {passive:true});
+  content.addEventListener('touchmove', e=>{
+    if(!moving) return;
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    if(!decided){
+      if(Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      decided = true;
+      if(Math.abs(dy) > Math.abs(dx)){ moving = false; return; }
+      content.classList.add('dragging');
+    }
+    e.preventDefault();
+    let base = open ? -actionW : 0;
+    let x = base + dx;
+    if(x > 0) x = 0;
+    if(x < -actionW) x = -actionW;
+    curX = x;
+    content.style.transform = `translateX(${x}px)`;
+  }, {passive:false});
+  content.addEventListener('touchend', ()=>{
+    if(!moving) return;
+    moving = false;
+    content.classList.remove('dragging');
+    if(!decided) return;
+    const shouldOpen = curX < -actionW*0.4;
+    open = shouldOpen;
+    content.style.transform = `translateX(${shouldOpen ? -actionW : 0}px)`;
+    content.dataset.justSwiped = '1';
+    setTimeout(()=>{ content.dataset.justSwiped = ''; }, 260);
+  });
+  content.addEventListener('click', e=>{
+    if(open){
+      e.stopPropagation(); e.preventDefault();
+      open = false;
+      content.style.transform = 'translateX(0)';
+    }
+  }, true);
+}
+
+document.addEventListener('click', e=>{
+  const el = e.target.closest('[data-act]');
+  if(!el) return;
+  const sc = e.target.closest('.swipe-content');
+  if(sc && sc.dataset.justSwiped === '1' && el.dataset.act.startsWith('open-')) return;
+  const act = el.dataset.act;
+  const id  = el.dataset.id;
+  switch(act){
+    case 'tab':
+      ui.tab = el.dataset.tab; ui.detail = null; render(); window.scrollTo(0,0); break;
+    case 'settings': openSettings(); break;
+    case 'close-full': {
+      const fp = el.closest('.fullpage');
+      if(fp){ fp.classList.remove('in'); setTimeout(()=>fp.remove(), 240); }
+      break;
+    }
+    case 'close-detail': ui.detail = null; render(); window.scrollTo(0,0); break;
+    case 'set-bean-tab':
+      ui.beanTab = el.dataset.tab; render(); break;
+    case 'toggle-bean-brews':
+      ui.beanBrewsOpen = !(ui.beanBrewsOpen !== false);
+      render();
+      break;
+    case 'toggle-bean-purchases':
+      ui.beanPurchasesOpen = !ui.beanPurchasesOpen;
+      render();
+      break;
+    case 'set-theme': {
+      state.settings.theme = el.dataset.key;
+      saveState(); applyTheme(state.settings.theme);
+      const p = el.closest('.fullpage');
+      if(p && p._refreshTheme) p._refreshTheme();
+      toast('已切换主题');
+      break;
+    }
+    case 'save-appname': {
+      const inp = $('#setName');
+      const v = (inp?.value||'').trim();
+      if(!v){ toast('名称不能为空'); break; }
+      state.settings.appName = v;
+      saveState(); toast('已保存');
+      break;
+    }
+    case 'toggle-bean-dense': ui.beanDense = !ui.beanDense; render(); break;
+    case 'add-bean': openBeanForm(null); break;
+    case 'edit-bean': openBeanForm(id); break;
+    case 'open-bean': ui.detail = { type:'bean', id }; render(); window.scrollTo(0,0); break;
+    case 'del-bean': {
+      confirmModal('删除豆子？', '该豆子的冲煮记录不会被删除，但会失去关联。', ()=>{
+        state.beans = state.beans.filter(x=>x.id!==id);
+        saveState(); render(); toast('已删除');
+      });
+      break;
+    }
+    case 'save-bean': {
+      const page = el.closest('.fullpage');
+      const o = page._beforeSave ? page._beforeSave() : readForm(page);
+      if(!o.name || !o.name.trim()){ toast('请填写品名'); return; }
+      if(id){
+        const b = state.beans.find(x=>x.id===id);
+        if(b) Object.assign(b, o);
+      }else{
+        state.beans.push(Object.assign({ id:uid('bean'), createdAt:Date.now() }, o));
+      }
+      saveState();
+      page.remove();
+      render();
+      window.scrollTo(0, 0);
+      toast('已保存');
+      break;
+    }
+    case 'toggle-blend': {
+      const on = el.classList.toggle('on');
+      $('.lbl', el).textContent = '拼配豆' + (on?' ✓':'');
+      const page = el.closest('.fullpage');
+      $('#singleBox', page).style.display = on ? 'none' : '';
+      $('#blendBox',  page).style.display = on ? '' : 'none';
+      break;
+    }
+    case 'toggle-friend': {
+      const on = el.classList.toggle('on');
+      $('.lbl', el).textContent = '朋友分享' + (on?' ✓':'');
+      break;
+    }
+    case 'toggle-brew-friend': {
+      const on = el.classList.toggle('on');
+      $('.lbl', el).textContent = '朋友分享（自动存入豆仓）' + (on?' ✓':'');
+      break;
+    }
+    case 'new-record': {
+      const mask = document.createElement('div');
+      mask.className = 'mask';
+      mask.innerHTML = `<div class="modal">
+        <h3>记一笔</h3>
+        <div class="pick-list">
+          <button class="pick-item" data-pick="brew">
+            <span class="pi-icon">${ICON.starOutline()}</span>
+            <span><span class="pi-t">制作咖啡</span><span class="pi-s">记录一次手冲 / 意式</span></span>
+          </button>
+          <button class="pick-item" data-pick="exp">
+            <span class="pi-icon">${ICON.starSolid()}</span>
+            <span><span class="pi-t">消费体验</span><span class="pi-s">记录一次门店体验</span></span>
+          </button>
+        </div>
+        <div class="m-btns" style="margin-top:14px">
+          <button class="btn ghost" data-close>取消</button>
+        </div>
+      </div>`;
+      document.body.appendChild(mask);
+      requestAnimationFrame(()=>mask.classList.add('in'));
+      mask.onclick = ev=>{
+        const p = ev.target.closest('[data-pick]');
+        if(p){
+          mask.classList.remove('in'); setTimeout(()=>mask.remove(),200);
+          setTimeout(()=>{ p.dataset.pick==='brew' ? openBrewForm(null) : openExpForm(null); }, 120);
+          return;
+        }
+        if(ev.target===mask || ev.target.closest('[data-close]')){
+          mask.classList.remove('in'); setTimeout(()=>mask.remove(),200);
+        }
+      };
+      break;
+    }
+    case 'edit-brew': openBrewForm(id); break;
+    case 'edit-exp':  openExpForm(id); break;
+    case 'del-brew': {
+      confirmModal('删除记录？','', ()=>{
+        state.brews = state.brews.filter(x=>x.id!==id);
+        saveState(); render(); toast('已删除');
+      });
+      break;
+    }
+    case 'del-exp': {
+      confirmModal('删除记录？','', ()=>{
+        state.experiences = state.experiences.filter(x=>x.id!==id);
+        saveState(); render(); toast('已删除');
+      });
+      break;
+    }
+    case 'save-brew': {
+      const page = el.closest('.fullpage');
+      const o = page._beforeSave ? page._beforeSave() : readForm(page);
+      if(!o.beanName && !o.beanId){ toast('请选择或输入豆子'); return; }
+      if(!o.beanName && o.beanId){
+        const b = state.beans.find(x=>x.id===o.beanId);
+        o.beanName = b ? b.name : '';
+      }
+      if(id){
+        const b = state.brews.find(x=>x.id===id);
+        if(b) Object.assign(b, o);
+      }else{
+        state.brews.push(Object.assign({ id:uid('brew'), createdAt:Date.now() }, o));
+      }
+      saveState();
+      page.remove();
+      render();
+      window.scrollTo(0, 0);
+      toast('已保存');
+      break;
+    }
+    case 'save-exp': {
+      const page = el.closest('.fullpage');
+      const o = page._beforeSave ? page._beforeSave() : readForm(page);
+      if(id){
+        const x = state.experiences.find(x=>x.id===id);
+        if(x) Object.assign(x, o);
+      }else{
+        state.experiences.push(Object.assign({ id:uid('exp'), createdAt:Date.now() }, o));
+      }
+      saveState();
+      page.remove();
+      render();
+      window.scrollTo(0, 0);
+      toast('已保存');
+      break;
+    }
+    case 'open-brew': {
+      const b = state.brews.find(x=>x.id===id);
+      if(!b) break;
+      openBrewDetail(b);
+      break;
+    }
+    case 'open-exp': {
+      const x = state.experiences.find(e=>e.id===id);
+      if(!x) break;
+      openFull('体验详情', `
+        <div class="card">
+          <div class="grid2">
+            <div class="full-row"><div class="k">店名</div><div class="v">${esc(x.shop||'—')}</div></div>
+            <div><div class="k">日期</div><div class="v">${esc(x.date||'—')}</div></div>
+            <div><div class="k">饮品</div><div class="v">${esc(x.drink||'—')}</div></div>
+            <div><div class="k">产地</div><div class="v">${esc(x.origin||'—')}</div></div>
+            <div><div class="k">烘焙度</div><div class="v">${esc(x.roastLevel||'—')}</div></div>
+            <div><div class="k">价格</div><div class="v">${x.price?'¥'+esc(String(x.price)):'—'}</div></div>
+            <div><div class="k">评分</div><div class="v" style="color:var(--focus)">${'★'.repeat(num(x.rating))||'—'}</div></div>
+            <div class="full-row"><div class="k">其他</div><div class="v">${esc(x.other||'—')}</div></div>
+          </div>
+          ${x.experience?`<div class="divider"></div>
+            <div class="k" style="font-size:11.5px;color:var(--sub)">体验</div>
+            <div style="font-size:13.5px;margin-top:3px;white-space:pre-wrap">${esc(x.experience)}</div>`:''}
+        </div>`);
+      break;
+    }
+    case 'toggle-recipe-dense': ui.recipeDense = !ui.recipeDense; render(); break;
+    case 'add-recipe': openRecipeForm(null); break;
+    case 'edit-recipe': openRecipeForm(id); break;
+    case 'open-recipe': ui.detail = { type:'recipe', id }; render(); window.scrollTo(0,0); break;
+    case 'del-recipe':
+      confirmModal('删除方案？','', ()=>{
+        state.recipes = state.recipes.filter(x=>x.id!==id);
+        saveState(); render(); toast('已删除');
+      });
+      break;
+    case 'pin-recipe': {
+      const r = state.recipes.find(x=>x.id===id);
+      if(r){ r.pinned = !r.pinned; saveState(); render(); toast(r.pinned?'已置顶':'已取消置顶'); }
+      break;
+    }
+    case 'save-recipe': {
+      const page = el.closest('.fullpage');
+      const o = page._beforeSave ? page._beforeSave() : readForm(page);
+      if(!o.title || !o.title.trim()){ toast('请填写方案名称'); return; }
+      if(id){
+        const r = state.recipes.find(x=>x.id===id);
+        if(r) Object.assign(r, o);
+      }else{
+        state.recipes.push(Object.assign({ id:uid('recipe'), pinned:false, createdAt:Date.now() }, o));
+      }
+      saveState();
+      page.remove();
+      render();
+      window.scrollTo(0, 0);
+      toast('已保存');
+      break;
+    }
+    case 'pick-month': openMonthPicker(statsYM, v=>{ statsYM = v; render(); }); break;
+    case 'export-data': openExportModal(); break;
+    case 'import-data': openImportModal(); break;
+    case 'show-backup': {
+      const raw = localStorage.getItem(LS_KEY) || '{}';
+      openFull('备份数据', `<textarea class="inp" readonly style="height:60vh;font-size:11px">${esc(raw)}</textarea>`);
+      break;
+    }
+    case 'clear-data':
+      confirmModal('清空全部数据？','此操作不可恢复，建议先导出备份。', ()=>{
+        localStorage.removeItem(LS_KEY);
+        state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+        saveState(); render(); toast('已清空');
+      });
+      break;
+  }
+});
+
+function openBrewDetail(b){
+  const r = b.ratings || {};
+  openFull('冲煮详情', `
+    <div class="card">
+      <div class="card-top" style="margin-bottom:10px">
+        <div class="card-name" style="font-size:15px">${esc(b.beanName||'手冲')}</div>
+        <span class="tag tag-status">${esc(b.date||'')}</span>
+      </div>
+      <div class="grid2">
+        <div><div class="k">滤杯 / 咖啡机</div><div class="v">${esc(b.dripper||'—')}</div></div>
+        <div><div class="k">粉量</div><div class="v">${esc(String(b.dose||'—'))}${b.dose?' g':''}</div></div>
+        <div><div class="k">磨豆机</div><div class="v">${esc(b.grinder||'—')}</div></div>
+        <div><div class="k">研磨度</div><div class="v">${esc(b.grind||'—')}</div></div>
+        <div><div class="k">方式</div><div class="v">${esc(b.method||'—')}</div></div>
+        <div><div class="k">粉水比</div><div class="v">${b.ratio?'1:'+esc(String(b.ratio)):'—'}</div></div>
+        <div><div class="k">总水量</div><div class="v">${esc(String(b.totalWater||'—'))}${b.totalWater?' g':''}</div></div>
+        <div><div class="k">水温</div><div class="v">${esc(String(b.waterTemp||'—'))}${b.waterTemp?' ℃':''}</div></div>
+        <div><div class="k">总时长</div><div class="v">${esc(b.totalTime||'—')}</div></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div style="font-size:12px;color:var(--sub);margin-bottom:10px">口感评分</div>
+      <div class="rating-grid">
+        ${[['苦',r.bitter],['酸',r.sour],['甜感',r.sweet],['醇厚',r.body],['整体',r.overall]].map(([k,v])=>{
+          const nv = clamp(Math.round(num(v)),0,5);
+          return `<div class="rating-row"><span class="rl">${k}</span>
+            <span style="color:var(--focus);font-size:15px;letter-spacing:2px">${'★'.repeat(nv)}${'☆'.repeat(5-nv)}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+    ${ b.flavor?`<div class="card" style="margin-top:12px">
+      <div class="k" style="font-size:11.5px;color:var(--sub)">风味</div>
+      <div style="font-size:13.5px;margin-top:3px">${esc(b.flavor)}</div></div>`:'' }
+    ${ b.technique?`<div class="card" style="margin-top:12px">
+      <div class="k" style="font-size:11.5px;color:var(--sub)">手法备注</div>
+      <div style="font-size:13.5px;margin-top:3px;white-space:pre-wrap">${esc(b.technique)}</div></div>`:'' }
+    ${ b.notes?`<div class="card" style="margin-top:12px">
+      <div class="k" style="font-size:11.5px;color:var(--sub)">笔记</div>
+      <div style="font-size:13.5px;margin-top:3px;white-space:pre-wrap">${esc(b.notes)}</div></div>`:'' }
+    <div class="btn-row" style="margin-top:20px">
+      <button class="btn ghost" data-act="edit-brew" data-id="${b.id}">修改</button>
+    </div>
+  `);
+}
+
+function confirmModal(title, sub, onOk){
+  const mask = document.createElement('div');
+  mask.className = 'mask';
+  mask.innerHTML = `<div class="modal">
+    <h3>${esc(title)}</h3>
+    ${sub?`<p style="margin:0 0 14px;font-size:13.5px;color:var(--sub)">${esc(sub)}</p>`:''}
+    <div class="m-btns">
+      <button class="btn ghost" data-no>取消</button>
+      <button class="btn danger" data-yes>确定</button>
+    </div>
+  </div>`;
+  document.body.appendChild(mask);
+  requestAnimationFrame(()=>mask.classList.add('in'));
+  mask.onclick = e=>{
+    if(e.target.closest('[data-yes]')){ close(); onOk(); return; }
+    if(e.target===mask || e.target.closest('[data-no]')) close();
+  };
+  function close(){ mask.classList.remove('in'); setTimeout(()=>mask.remove(),200); }
+}
+
+function renderDetail(){
+  if(!ui.detail) return '';
+  if(ui.detail.type === 'bean'){
+    const b = state.beans.find(x=>x.id===ui.detail.id);
+    if(!b){ ui.detail = null; return viewBeans(); }
+    return renderBeanDetail(b);
+  }
+  if(ui.detail.type === 'recipe'){
+    const r = state.recipes.find(x=>x.id===ui.detail.id);
+    if(!r){ ui.detail = null; return viewRecipes(); }
+    return renderRecipeDetail(r);
+  }
+  return '';
+}
+
+applyTheme(state.settings.theme);
+render();
+</script>
+</body>
+</html>
