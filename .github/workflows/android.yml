@@ -21,7 +21,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-         
+
       - name: Setup Java JDK 17
         uses: actions/setup-java@v4
         with:
@@ -40,21 +40,19 @@ jobs:
           key: gradle-${{ runner.os }}-${{ hashFiles('android/**/*.gradle*', 'android/gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: gradle-${{ runner.os }}-
 
-      - name: Note if android project is missing
-        run: |
-          if [ ! -d "android" ]; then
-            echo "::notice::android/ 目录还不存在，本次跳过构建。请先运行 Bootstrap Android project 工作流。"
-          fi
+      - name: Install dependencies
+        run: npm install
 
-      # android/ 尚未生成时直接跳过，不报错（引导阶段第一次 push 会遇到）
+      # android/ 尚未生成时跳过构建，不报错（引导阶段第一次 push 会遇到）
       - name: Check android project exists
         id: check
         run: |
           if [ -d "android" ]; then
             echo "exists=yes" >> "$GITHUB_OUTPUT"
+            echo "android/ 已存在，继续构建"
           else
             echo "exists=no" >> "$GITHUB_OUTPUT"
-            echo "::notice::android/ 目录还不存在，跳过构建。请先运行 Bootstrap Android project 工作流。"
+            echo "::notice::android/ 目录还不存在，本次跳过构建。请先运行 Bootstrap Android project 工作流生成它。"
           fi
 
       # android/ 已提交进仓库，这里只需要同步 web 资源。
