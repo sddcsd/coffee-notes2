@@ -1,11 +1,17 @@
-name: Bootstrap Android project (RUN ONCE)
+name: Build Android APK
 
-# 一次性引导工作流：生成 android/ 原生工程供你下载提交
 on:
+  push:
+    branches: [ main, master ]
   workflow_dispatch:
 
+# 同一分支只跑一个构建，避免连续 push 并行互相覆盖
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  bootstrap:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -15,6 +21,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
       - name: Setup Java JDK 17
         uses: actions/setup-java@v4
@@ -25,31 +32,128 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('android/**/*.gradle*', 'android/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: gradle-${{ runner.os }}-
+
       - name: Install dependencies
         run: npm install
 
-      - name: Generate android project
-        run: npx cap add android
-
-      - name: Apply fixed build.gradle
-        run: python3 prepare_android.py
-
-      - name: Show key config
+      # android/ 尚未生成时直接跳过，不报错（引导阶段第一次 push 会遇到）
+      - name: Check android project exists
+        id: check
         run: |
-          echo "===== android/app/build.gradle ====="
-          grep -nE "namespace|applicationId|versionCode|versionName|signingConfig|storeFile" android/app/build.gradle
-          echo
-          echo "===== strings.xml ====="
-          cat android/app/src/main/res/values/strings.xml
+          if [ -d "android" ]; then
+            echo "exists=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=no" >> "$GITHUB_OUTPUT"
+            echo "::notice::android/ 目录还不存在，跳过构建。请先运行 Bootstrap Android project 工作流。"
+          fi
 
-      - name: Package android project
+      # android/ 已提交进仓库，这里只需要同步 web 资源。
+      # 绝不能再跑 cap add android —— 那会重建原生工程，
+      # 把 versionCode、签名配置、桌面应用名全部抹掉。
+      - name: Sync Capacitor
+        if: steps.check.outputs.exists == 'yes'
+        run: npx cap sync android
+
+      # ------------------------------------------------------------------
+      # 递增 versionCode：Capacitor 模板里是硬编码的 versionCode 1，
+      # 不改文件就永远是 1，多个 APK 之间无法区分版本。
+      # ------------------------------------------------------------------
+      - name: Bump versionCode
+        if: steps.check.outputs.exists == 'yes'
         run: |
-          tar -czf android-project.tar.gz android
-          ls -lh android-project.tar.gz
+          GRADLE=android/app/build.gradle
+          sed -i -E "s/versionCode[[:space:]]+[0-9]+/versionCode ${{ github.run_number }}/" "$GRADLE"
+          sed -i -E "s/versionName[[:space:]]+\"[^\"]*\"/versionName \"1.0.${{ github.run_number }}\"/" "$GRADLE"
+          echo "--- 确认 ---"
+          grep -nE "versionCode|versionName" "$GRADLE"
 
-      - name: Upload android project
+      # ------------------------------------------------------------------
+      # 写入签名配置（local.properties 已被 .gitignore 忽略，不会提交）
+      #
+      # 三种情况：
+      #   1) 配了 ANDROID_KEYSTORE_BASE64  → 用你的固定密钥（正常状态）
+      #   2) 没配，且仓库里还没有 keystore.jks → 自动生成一个并上传为产物，
+      #      你下载后配成 secret，之后就一直用它
+      #   3) 没配，但仓库里已有 keystore.jks → 复用它
+      # ------------------------------------------------------------------
+      - name: Prepare signing
+        if: steps.check.outputs.exists == 'yes'
+        id: sign
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          KS_FILE=keystore.jks
+          STORE_PASS="${KS_PASS:-coffeekeystore}"
+          ALIAS="${KEY_ALIAS:-coffee}"
+          KEYPASS="${KEY_PASS:-$STORE_PASS}"
+
+          if [ -n "$KS_B64" ]; then
+            echo "$KS_B64" | base64 -d > "$KS_FILE"
+            echo "使用 secrets 中的固定密钥"
+            echo "generated=no" >> "$GITHUB_OUTPUT"
+          elif [ -f "$KS_FILE" ]; then
+            echo "复用仓库中已存在的 $KS_FILE"
+            echo "generated=no" >> "$GITHUB_OUTPUT"
+          else
+            keytool -genkeypair -v \
+              -keystore "$KS_FILE" \
+              -alias "$ALIAS" \
+              -keyalg RSA -keysize 2048 -validity 10950 \
+              -storepass "$STORE_PASS" -keypass "$KEYPASS" \
+              -dname "CN=Coffee Notes, OU=Personal, O=Personal, L=City, S=State, C=CN"
+            echo "已自动生成新密钥（请务必下载并配成 secret，否则下次构建签名会变）"
+            echo "generated=yes" >> "$GITHUB_OUTPUT"
+          fi
+
+          {
+            echo "RELEASE_STORE_FILE=../$KS_FILE"
+            echo "RELEASE_STORE_PASSWORD=$STORE_PASS"
+            echo "RELEASE_KEY_ALIAS=$ALIAS"
+            echo "RELEASE_KEY_PASSWORD=$KEYPASS"
+          } > android/local.properties
+
+          echo "keystore 大小：$(stat -c%s "$KS_FILE") 字节"
+          echo "SHA-256 指纹："
+          keytool -list -v -keystore "$KS_FILE" -storepass "$STORE_PASS" | grep -E "SHA256|SHA-256" || true
+
+      # 首次自动生成密钥时，把它上传出来供你下载保存
+      - name: Upload generated keystore (first time only)
+        if: steps.sign.outputs.generated == 'yes'
         uses: actions/upload-artifact@v4
         with:
-          name: android-project
-          path: android-project.tar.gz
+          name: KEYSTORE-DOWNLOAD-ME
+          path: keystore.jks
           retention-days: 30
+
+      - name: Build Debug APK
+        if: steps.check.outputs.exists == 'yes'
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Verify APK
+        if: steps.check.outputs.exists == 'yes'
+        run: |
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          test -f "$APK" || { echo "::error::APK 未生成"; exit 1; }
+          ls -lh "$APK"
+          echo "APK 大小：$(stat -c%s "$APK") 字节"
+
+      - name: Upload APK
+        if: steps.check.outputs.exists == 'yes'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coffee-notes-v${{ github.run_number }}
+          path: android/app/build/outputs/apk/debug/app-debug.apk
