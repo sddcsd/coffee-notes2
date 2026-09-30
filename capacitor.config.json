@@ -1,0 +1,8 @@
+{
+  "appId": "com.coffee.notes",
+  "appName": "咖啡小记",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "coffee-notes",
+  "version": "1.0.0",
+  "description": "咖啡小记 - 记录咖啡豆、手冲方案和口感",
+  "private": true,
+  "scripts": {
+    "sync": "cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/core": "^6.1.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.2"
+  }
+}
