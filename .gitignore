@@ -1,0 +1,30 @@
+# 依赖目录（由 npm install 自动生成）
+node_modules/
+
+# 签名密钥：绝不能提交
+*.jks
+*.keystore
+*.p12
+
+# 本地路径/签名密码配置（由 CI 或本地生成）
+local.properties
+
+# 构建产物
+android/build/
+android/app/build/
+android/.gradle/
+android/capacitor-cordova-android-plugins/
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+android/app/src/main/res/xml/config.xml
+
+# 编辑器/系统垃圾文件
+.DS_Store
+Thumbs.db
+*.log
+*.iml
+
+# 注意：不要在这里写 `android/` 整目录！
+# 本项目的 android/ 必须提交进仓库 —— versionCode、签名配置、
+# 桌面应用名都在里面，而且工作流已不再执行 cap add android。
